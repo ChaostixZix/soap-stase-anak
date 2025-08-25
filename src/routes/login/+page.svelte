@@ -33,8 +33,8 @@
 			if (signInError) throw signInError;
 
 			message = 'Check your email for the magic link!';
-		} catch (err: any) {
-			error = err.message;
+		} catch (err) {
+			error = err?.message || 'An error occurred';
 		} finally {
 			loading = false;
 		}
