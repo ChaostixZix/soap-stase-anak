@@ -27,17 +27,39 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/" | "/auth" | "/auth/callback" | "/login";
+		RouteId(): "/" | "/api" | "/api/bangsal" | "/api/bangsal/[id]" | "/api/hospitals" | "/api/hospitals/[id]" | "/api/patients" | "/api/patients/[patient_id]" | "/api/patients/[id]" | "/api/patients/[patient_id]/soap" | "/api/patients/[patient_id]/soap/latest" | "/api/soap" | "/api/soap/[soap_id]" | "/api/soap/[soap_id]/plan-items" | "/api/soap/[soap_id]/recompute-plan" | "/auth" | "/auth/callback" | "/login";
 		RouteParams(): {
-			
+			"/api/bangsal/[id]": { id: string };
+			"/api/hospitals/[id]": { id: string };
+			"/api/patients/[patient_id]": { patient_id: string };
+			"/api/patients/[id]": { id: string };
+			"/api/patients/[patient_id]/soap": { patient_id: string };
+			"/api/patients/[patient_id]/soap/latest": { patient_id: string };
+			"/api/soap/[soap_id]": { soap_id: string };
+			"/api/soap/[soap_id]/plan-items": { soap_id: string };
+			"/api/soap/[soap_id]/recompute-plan": { soap_id: string }
 		};
 		LayoutParams(): {
-			"/": Record<string, never>;
+			"/": { id?: string; patient_id?: string; soap_id?: string };
+			"/api": { id?: string; patient_id?: string; soap_id?: string };
+			"/api/bangsal": { id?: string };
+			"/api/bangsal/[id]": { id: string };
+			"/api/hospitals": { id?: string };
+			"/api/hospitals/[id]": { id: string };
+			"/api/patients": { patient_id?: string; id?: string };
+			"/api/patients/[patient_id]": { patient_id: string };
+			"/api/patients/[id]": { id: string };
+			"/api/patients/[patient_id]/soap": { patient_id: string };
+			"/api/patients/[patient_id]/soap/latest": { patient_id: string };
+			"/api/soap": { soap_id?: string };
+			"/api/soap/[soap_id]": { soap_id: string };
+			"/api/soap/[soap_id]/plan-items": { soap_id: string };
+			"/api/soap/[soap_id]/recompute-plan": { soap_id: string };
 			"/auth": Record<string, never>;
 			"/auth/callback": Record<string, never>;
 			"/login": Record<string, never>
 		};
-		Pathname(): "/" | "/auth" | "/auth/" | "/auth/callback" | "/auth/callback/" | "/login" | "/login/";
+		Pathname(): "/" | "/api" | "/api/" | "/api/bangsal" | "/api/bangsal/" | `/api/bangsal/${string}` & {} | `/api/bangsal/${string}/` & {} | "/api/hospitals" | "/api/hospitals/" | `/api/hospitals/${string}` & {} | `/api/hospitals/${string}/` & {} | "/api/patients" | "/api/patients/" | `/api/patients/${string}` & {} | `/api/patients/${string}/` & {} | `/api/patients/${string}/soap` & {} | `/api/patients/${string}/soap/` & {} | `/api/patients/${string}/soap/latest` & {} | `/api/patients/${string}/soap/latest/` & {} | "/api/soap" | "/api/soap/" | `/api/soap/${string}` & {} | `/api/soap/${string}/` & {} | `/api/soap/${string}/plan-items` & {} | `/api/soap/${string}/plan-items/` & {} | `/api/soap/${string}/recompute-plan` & {} | `/api/soap/${string}/recompute-plan/` & {} | "/auth" | "/auth/" | "/auth/callback" | "/auth/callback/" | "/login" | "/login/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/favicon.png" | string & {};
 	}
