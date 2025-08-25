@@ -26,3 +26,27 @@ clean: ## Clean build artifacts and node_modules
 # Environment setup
 env-copy: ## Copy .env.example to .env
 	cp .env.example .env || true
+
+# Database targets (Supabase)
+db-start: ## Start Supabase local development
+	npx supabase start
+
+db-stop: ## Stop Supabase local development
+	npx supabase stop
+
+db-reset: ## Reset database and apply all migrations
+	npx supabase db reset
+
+db-push: ## Push local schema changes to remote database
+	npx supabase db push
+
+db-pull: ## Pull remote schema changes to local
+	npx supabase db pull
+
+db-migrate: ## Apply migrations in order (schema -> rls -> seed)
+	@echo "Applying schema migration..."
+	npx supabase db reset
+	@echo "Schema, RLS, and seed data applied successfully!"
+
+db-status: ## Show database migration status
+	npx supabase status
