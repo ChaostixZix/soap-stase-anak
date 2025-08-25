@@ -1,0 +1,309 @@
+💡 Claude Code – Senior Engineer Build Brief
+
+Project: SOAP Manager (patients for me & my GF)
+Deliverables: Web app + Supabase schema & RLS + MCP server (patient tools) + Telegram bot + minimal host wiring + seed + docs
+Languages: TypeScript/Node, SQL
+Style: Minimal, clear, production-ready MVP
+
+0) Rules of Engagement
+	•	Be decisive. If something is ambiguous, pick sensible defaults and note assumptions in ASSUMPTIONS.md.
+	•	Ship a working vertical slice first (CRUD + NL flow end-to-end), then iterate.
+	•	Use small, readable modules; add comments where non-obvious.
+	•	Prefer SvelteKit (lighter than heavy React stacks) + Tailwind. If you must pick React, use Next.js App Router.
+	•	Use Supabase (Postgres + Auth + RLS).
+	•	Implement MCP server (Node SDK) over stdio with tools for patient search, disambiguation, and SOAP updates.
+	•	Implement Telegram Bot (webhook) that talks to our serverless endpoint, delegating to the same “NL command” handler used by the web UI.
+	•	Include makefile tasks for dev/run, and a single scripts/dev.sh one-liner.
+
+⸻
+
+1) Product Scope (MVP)
+
+Entities
+	•	Hospital: id (uuid), name (text, unique per user)
+	•	Bangsal (ward): id (uuid), hospital_id → Hospital, name (text)
+	•	Patient: id (uuid), hospital_id → Hospital, bangsal_id → Bangsal, room_number (text), full_name (text), MRN (text, optional), created_by (user id)
+	•	SOAP: id, patient_id, s (text), o (text), a (text), p (jsonb array of “plan items”), created_at, updated_at
+	•	Plan item (inside SOAP.p array): { drug: string, route?: string, dose?: string, freq?: string, days?: number, start_date: date, end_date: date, status: "active"|"done" }
+
+Core flows
+	1.	Hospital/Bangsal Manager
+	•	Create hospital; create bangsal under hospital.
+	2.	Patient Manager
+	•	Create patient (select hospital, bangsal, room).
+	•	View list by hospital/bangsal; search by name (“Bintang”, “Bintang Putra”, “Nisa”).
+	3.	SOAP
+	•	View latest SOAP (default to most recent).
+	•	Natural-language commands to read/update:
+	•	“Apa diagnosis Bintang?” → Disambiguate “Bintang” → show Assessment (A) of latest SOAP.
+	•	“Pasien Bintang tambahkan obat injeksi Cefotaxime untuk 2 hari.” → Append a Plan item; auto compute end date = start_date + days; mark prior items done if end_date < today; split view with “Plan Aktif” and “— Plan Selesai”.
+
+NL Data Exposure Strategy (Important)
+	•	The AI does not see the entire DB.
+	•	For identification: expose patients(name, hospital_name, bangsal_name, room_number, id) via a search tool.
+	•	For read: expose only the latest SOAP row for a given patient and selected columns (a for diagnosis, and current p items).
+	•	For write: tools accept structured inputs (patient_id, plan item object, etc.) and perform validated DB writes. The model never writes raw SQL.
+
+⸻
+
+2) Tech Stack & Packages
+	•	SvelteKit + Tailwind CSS
+	•	Supabase JS client & server helpers
+	•	MCP Server: @modelcontextprotocol/sdk, zod
+	•	Telegram: telegraf or minimal webhook using raw Bot API via undici
+	•	Date math: date-fns
+	•	Deploy target: Vercel or Supabase functions (your call; pick one and document)
+
+⸻
+
+3) Database (SQL + RLS)
+
+Create SQL migrations:
+
+-- 01_schema.sql
+create extension if not exists pg_trgm;
+
+create table app_user (
+  id uuid primary key default auth.uid(),
+  created_at timestamptz not null default now()
+);
+
+create table hospital (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references app_user(id),
+  name text not null,
+  unique(owner_id, name)
+);
+
+create table bangsal (
+  id uuid primary key default gen_random_uuid(),
+  hospital_id uuid not null references hospital(id) on delete cascade,
+  name text not null,
+  unique(hospital_id, name)
+);
+
+create table patient (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references app_user(id),
+  hospital_id uuid not null references hospital(id) on delete cascade,
+  bangsal_id uuid not null references bangsal(id),
+  room_number text,
+  full_name text not null,
+  mrn text,
+  created_at timestamptz not null default now()
+);
+create index on patient using gin (full_name gin_trgm_ops);
+
+create table soap (
+  id uuid primary key default gen_random_uuid(),
+  patient_id uuid not null references patient(id) on delete cascade,
+  s text,
+  o text,
+  a text, -- diagnosis/assessment
+  p jsonb not null default '[]', -- plan items array
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index on soap(patient_id, created_at desc);
+
+-- 02_rls.sql
+alter table app_user enable row level security;
+alter table hospital enable row level security;
+alter table bangsal enable row level security;
+alter table patient enable row level security;
+alter table soap enable row level security;
+
+create policy "users see self" on app_user
+  for select using (id = auth.uid());
+
+create policy "owner rw hospitals" on hospital
+  using (owner_id = auth.uid())
+  with check (owner_id = auth.uid());
+
+create policy "rw bangsal under my hospitals" on bangsal
+  using (exists (select 1 from hospital h where h.id = bangsal.hospital_id and h.owner_id = auth.uid()))
+  with check (exists (select 1 from hospital h where h.id = bangsal.hospital_id and h.owner_id = auth.uid()));
+
+create policy "rw my patients" on patient
+  using (owner_id = auth.uid())
+  with check (owner_id = auth.uid());
+
+create policy "rw soap for my patients" on soap
+  using (exists (select 1 from patient p where p.id = soap.patient_id and p.owner_id = auth.uid()))
+  with check (exists (select 1 from patient p where p.id = soap.patient_id and p.owner_id = auth.uid()));
+
+Seed script (03_seed.sql) with hospitals, bangsal, and patients “Bintang”, “Bintang Putra”, “Nisa”.
+
+⸻
+
+4) MCP Server (Node, stdio)
+
+Create mcp/soap-tools.mjs:
+	•	Tools
+	1.	patient.searchByName
+Input: { name: string }
+Behavior: fuzzy search patients owned by current user; return up to 5 candidates {id,name,hospital,bangsal,room}.
+	2.	soap.getLatest
+Input: { patient_id: string, select?: ("a"|"p"|"summary")[] }
+Behavior: fetch latest SOAP; if select unspecified, return a and active p.
+	3.	soap.appendPlanItem
+Input: { patient_id, item: { drug, route?, dose?, freq?, days?, start_date? } }
+Behavior: compute start_date = today() if missing; end_date = start_date + days; push to p.
+	4.	soap.recomputePlanStatuses
+Input: { patient_id }
+Behavior: mark status="done" where end_date < today, else active. Persist.
+	•	Security: The MCP server uses service-role key only when running server-side; expose safe subsets. No raw SQL surfaced to the model.
+	•	Transport: StdioServerTransport. Export bin in package.json so hosts can spawn it.
+
+⸻
+
+5) Telegram Bot
+	•	/webhooks/telegram serverless endpoint that:
+	•	Verifies bot token.
+	•	Normalizes text → calls the same NL handler used by web UI.
+	•	Uses disambiguation flow: if “Bintang” matches 2 patients, reply with quick replies to choose.
+	•	Commands to support:
+	•	“diagnosis bintang” → use patient.searchByName then soap.getLatest(select:["a"]).
+	•	“tambah obat … untuk 2 hari” → parse into structured plan; call appendPlanItem + recomputePlanStatuses.
+	•	Keep Indonesian phrasing in examples.
+
+⸻
+
+6) Natural-Language Agent Design
+	•	The “agent” runs inside our app (API route). It does not get raw table mirrors.
+	•	It calls MCP tools to search, disambiguate, read small slices, write structured updates.
+	•	Prompting strategy for the model (system prompt):
+
+You are a clinical SOAP assistant for a small ward app.
+- Never guess a patient; always disambiguate if multiple matches.
+- For “diagnosis X?” return the latest SOAP.A only.
+- For “tambah obat … N hari” create a Plan item with start_date=today if not given, end_date=start+N-1 inclusive.
+- After writes, call recomputePlanStatuses and return a split view:
+  Plan Aktif: [...]
+  ---- Plan Selesai
+  [...]
+- All dates default to Asia/Jakarta.
+- Use the structured MCP tools only; do not invent data.
+
+
+	⸻
+
+7) Web App (SvelteKit)
+	•	Pages:
+	•	/ dashboard: filter by hospital → bangsal; list patients with room number.
+	•	/hospitals, /bangsal, /patients/[id]
+	•	/patients/[id]/soap shows latest SOAP; editor for S,O,A; Plan viewer with active/done separator.
+	•	NL command box on patient page and top navbar: sends text to /api/nl, which orchestrates calls to MCP tools and returns structured result to render.
+
+⸻
+
+8) Implementation Plan (Tasks)
+	1.	Scaffold SvelteKit + Tailwind + Supabase client; auth with email link (or magic link).
+	2.	DB: apply SQL migrations; enable RLS; add seed.
+	3.	Data access: server routes for hospitals, bangsal, patients, SOAP CRUD (Zod validated).
+	4.	MCP server: implement tools; env config for Supabase URL/key; bin script; README with how to register to a host (e.g., Claude Desktop).
+	5.	NL orchestration: /api/nl mapping intents:
+	•	intent=ask_diagnosis(name) → search → maybe disambiguate → getLatest.a
+	•	intent=add_medication(name, item) → search → append → recompute → return split plan
+	6.	Telegram: webhook endpoint + command parser; doc for setting webhook.
+	7.	UI: hospital/bangsal managers; patient list; patient profile; SOAP screen with Plan active/done.
+	8.	Tests: minimal API unit tests for plan recompute & append.
+	9.	Docs: README.md, ASSUMPTIONS.md, .env.example, runbook, and POSTMAN.json.
+
+⸻
+
+9) Parsing NL → Plan Items
+	•	Accept forms like:
+	•	“Inj. Cefotaxime 1g IV q8h 2 hari”
+	•	“Inf. Paracetamol 1g PO bid 2 hari mulai 26 Aug”
+	•	Extract: drug, route, dose, freq, days, optional start_date.
+	•	Compute end_date = start_date + days - 1.
+	•	status = active if end_date >= today, else done.
+
+⸻
+
+10) Example Outputs (for the UI)
+
+Plan Aktif
+- Inj. Cefotaxime 1g IV q8h (2 hari, sampai 28 Aug)
+
+---- Plan Selesai
+- Inf. Paracetamol 1g PO bid (2 hari, selesai 27 Aug)
+
+
+⸻
+
+11) File Layout
+
+/app
+  /src
+    /routes
+      +page.svelte
+      /hospitals
+      /bangsal
+      /patients/[id]
+      /api/nl/+server.ts
+      /webhooks/telegram/+server.ts
+    /lib/db.ts
+    /lib/nl.ts    # intent detection + MCP calls
+    /lib/plan.ts  # parse & recompute utilities
+  /mcp
+    soap-tools.mjs
+  /sql
+    01_schema.sql
+    02_rls.sql
+    03_seed.sql
+  .env.example
+  ASSUMPTIONS.md
+  README.md
+  scripts/dev.sh
+  makefile
+
+
+⸻
+
+12) Acceptance Criteria
+	•	I can:
+	1.	Create hospital & bangsal; add patients with room numbers.
+	2.	Ask in Indonesian: “Apa diagnosis Bintang?” → if two “Bintang”, I’m asked which; then see diagnosis from latest SOAP.
+	3.	“Pasien Bintang tambahkan obat injeksi Cefotaxime untuk 2 hari” → plan appended; recompute splits active/done.
+	4.	Do the same via Telegram chat.
+	5.	MCP tools are callable (documented), with Zod-validated inputs.
+	•	RLS prevents cross-user access.
+	•	All dates handled in Asia/Jakarta.
+
+⸻
+
+13) What to Hand Back
+	•	Source code as per file layout.
+	•	Supabase migration & seed applied instructions.
+	•	README.md with:
+	•	local dev setup
+	•	MCP registration steps (for Claude Desktop or simple host)
+	•	Telegram webhook setup commands
+	•	environment variables
+	•	Short demo GIF or steps to reproduce the 3 acceptance flows.
+
+⸻
+
+Environment Variables (.env.example)
+
+PUBLIC_SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=   # server-only
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_WEBHOOK_SECRET=
+TZ=Asia/Jakarta
+
+
+⸻
+
+14) Extras (if time allows)
+	•	Add pg_trgm similarity threshold tuning.
+	•	Simple audit trail table for SOAP edits.
+	•	CSV export per bangsal.
+
+⸻
+
+End of Brief
+
+⸻

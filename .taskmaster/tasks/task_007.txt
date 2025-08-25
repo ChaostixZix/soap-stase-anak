@@ -1,0 +1,49 @@
+# Task ID: 7
+# Title: UI: Hospital/Bangsal managers and Patient list
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Build dashboard with hospital → bangsal filter, and patient list with room number and search.
+# Details:
+Pages: /, /hospitals, /bangsal, /patients/[id]. Implement CRUD UIs for hospitals and bangsal, and patient creation (select hospital, bangsal, room).
+
+# Test Strategy:
+Manual UI verification; confirm list filters and search by name works; ensure RLS errors handled in UI.
+
+# Subtasks:
+## 1. Create Hospital Management UI at `/hospitals` [pending]
+### Dependencies: None
+### Description: Implement a page at `/hospitals` to list, create, update, and delete hospitals. This page will serve as the foundational CRUD interface, establishing patterns for subsequent UI tasks.
+### Details:
+Create `src/routes/hospitals/+page.svelte` and `+page.server.ts`. Use `+page.server.ts` to load the list of hospitals and define SvelteKit form actions for create, update, and delete. The UI should use `shadcn-svelte` components: a `Table` to list hospitals (columns: Name, Actions) and a `Dialog` for the create/edit form, which will contain an `Input` for the hospital name and a `Button` to submit.
+
+## 2. Create Bangsal Management UI at `/bangsal` [pending]
+### Dependencies: 7.1
+### Description: Implement a page at `/bangsal` for CRUD operations on bangsal. The list of bangsal must be scoped by a selected hospital, demonstrating a dependent relationship in the UI.
+### Details:
+Create `src/routes/bangsal/+page.svelte` and `+page.server.ts`. The page must feature a `shadcn-svelte` `Select` component to choose a hospital. The list of hospitals for this select should be loaded in `+page.server.ts`. Upon selection, the `Table` below should display the bangsal for that hospital. Implement CRUD form actions, ensuring the `hospital_id` is passed along with the bangsal name.
+
+## 3. Implement Dashboard Patient List and Filters at `/` [pending]
+### Dependencies: 7.2
+### Description: Develop the root page (`/`) to display a list of patients, filterable by Hospital and then by Bangsal. This will be the main user dashboard.
+### Details:
+Modify `src/routes/+page.svelte` and `+page.server.ts`. Add two `Select` components for filtering: one for Hospitals, and a second for Bangsal that populates based on the hospital selection. Use URL search parameters (e.g., `?hospitalId=...&bangsalId=...`) to manage filter state. Display the filtered patients in a `Table` with columns for Patient Name and Room Number. Each patient row should be a link to `/patients/[id]`.
+
+## 4. Add Patient Search and Creation to Dashboard [pending]
+### Dependencies: 7.3
+### Description: Enhance the dashboard page (`/`) with a search input to filter patients by name and a dialog form to create new patients.
+### Details:
+On `src/routes/+page.svelte`, add an `Input` for searching. The search should trigger an API call to a server endpoint that finds patients by name. Implement a 'New Patient' `Button` that opens a `Dialog`. The creation form within the dialog must include inputs for Patient Name, Room Number, and `Select` components for choosing the Hospital and Bangsal. Create a SvelteKit form action to handle the submission.
+
+## 5. Update Main Layout with Navigation [pending]
+### Dependencies: 7.1, 7.2, 7.3
+### Description: Modify the root layout to include a persistent navigation bar, providing easy access to the Dashboard (`/`), Hospitals (`/hospitals`), and Bangsal (`/bangsal`) pages.
+### Details:
+Edit `src/routes/+layout.svelte` and its corresponding `+layout.server.ts`. Create a header or sidebar component containing navigation links. This component should also display user session information (e.g., user email) and a logout button, using data loaded from the root layout server file. Ensure the layout is clean and responsive.
+
+## 6. Implement Loading, Error, and Empty States [pending]
+### Dependencies: 7.4, 7.5
+### Description: Refine the user experience across all new pages by implementing clear loading indicators, user-friendly error messages, and helpful messages for empty data states.
+### Details:
+Across `/`, `/hospitals`, and `/bangsal`, use Svelte's `#await` blocks or a store-based loading flag to show `shadcn-svelte` `Skeleton` components while data is being fetched. For tables with no data, display a clear message (e.g., 'No hospitals found.'). When form actions or data loads fail, especially due to RLS policies, catch the error and display a user-friendly `Alert` or `Toast` (e.g., 'You do not have permission to view these patients.').
+

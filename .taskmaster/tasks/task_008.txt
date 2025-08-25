@@ -1,0 +1,49 @@
+# Task ID: 8
+# Title: UI: Patient profile and SOAP screen
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Implement /patients/[id] and /patients/[id]/soap to view latest SOAP, edit S/O/A, and view plan split (active vs done).
+# Details:
+Add NL command box on patient page and navbar that posts to /api/nl and renders structured results. Use date-fns and Asia/Jakarta time zone.
+
+# Test Strategy:
+Manual verification of viewing/editing SOAP and NL box behaviors; confirm plan items split correctly after recompute.
+
+# Subtasks:
+## 1. Create Patient Profile Page `/patients/[id]` [pending]
+### Dependencies: None
+### Description: Create the dynamic route and page to display a patient's basic demographic information. This page will serve as the entry point for viewing patient-specific data.
+### Details:
+Create `src/routes/patients/[id]/+page.svelte` and `+page.server.ts`. In the `load` function within `+page.server.ts`, fetch the patient's data (name, MRN, room, hospital, bangsal) from the API endpoint (e.g., `GET /api/patients/[id]`). In `+page.svelte`, render this information in a clean, read-only layout using Tailwind CSS for styling. Add a prominent link or button to navigate to the SOAP page (`/patients/[id]/soap`).
+
+## 2. Implement SOAP Viewer at `/patients/[id]/soap` [pending]
+### Dependencies: 8.1
+### Description: Create the page to view the latest SOAP (Subjective, Objective, Assessment, Plan) for a specific patient. Initially, this will be a read-only view.
+### Details:
+Create `src/routes/patients/[id]/soap/+page.svelte` and `+page.server.ts`. In the `load` function, fetch the latest SOAP record for the patient ID from the API (e.g., `GET /api/patients/[id]/soap/latest`). In the Svelte component, structure the page with clear headings for 'Subjective', 'Objective', and 'Assessment', and display the fetched text content for each. The 'Plan' section will be handled in a subsequent subtask.
+
+## 3. Enable Editing for S/O/A Sections with Optimistic Updates [pending]
+### Dependencies: 8.2
+### Description: Convert the read-only Subjective, Objective, and Assessment sections into editable text areas and implement the save functionality.
+### Details:
+In `src/routes/patients/[id]/soap/+page.svelte`, replace the static text displays for S, O, and A with `<textarea>` elements bound to the page's data store. Add a 'Save' button. On click, this button should trigger a `fetch` call to the update endpoint (e.g., `PUT /api/patients/[id]/soap`). Implement optimistic updates by immediately reflecting the change in the UI. Use a toast library like `svelte-sonner` to provide feedback on success or failure of the save operation.
+
+## 4. Create Plan Viewer Component with Active/Done Split [pending]
+### Dependencies: 8.2
+### Description: Develop a dedicated component to display the 'Plan' items, splitting them into 'Active' and 'Done' lists, and format dates correctly.
+### Details:
+Create a new component `src/lib/components/PlanViewer.svelte`. This component will accept the `plan` array from the SOAP data as a prop. Inside the component, iterate through the plan items and categorize them into 'Active' and 'Done' based on their status field. Use `date-fns` and `date-fns-tz` to format any timestamps associated with the plan items to the 'Asia/Jakarta' timezone. Display the two lists clearly. Integrate this component into the `/patients/[id]/soap` page.
+
+## 5. Implement Reusable Natural Language Command Box Component [pending]
+### Dependencies: None
+### Description: Create a Svelte component for a natural language command input that communicates with the `/api/nl` endpoint.
+### Details:
+Create `src/lib/components/NLCommandBox.svelte`. The component should feature a text input and a submit button. On form submission, it should POST the input value to the `/api/nl` endpoint. It must handle the API's JSON response, which could be a success message, structured data to display, or a disambiguation prompt requiring further user input. Implement basic rendering logic for these different response types.
+
+## 6. Integrate NL Command Box and Finalize Layouts [pending]
+### Dependencies: 8.1, 8.5
+### Description: Place the NL Command Box in the main navbar and on the patient page, and ensure all new pages are minimally responsive.
+### Details:
+Import and add the `NLCommandBox.svelte` component into the main application layout, likely `src/routes/+layout.svelte`, to make it globally accessible from the navbar. Add a second instance of the component to the `/patients/[id]` page, potentially pre-configured with the patient's context. Finally, review the `/patients/[id]` and `/patients/[id]/soap` pages and apply Tailwind CSS utility classes to ensure they are usable on mobile devices.
+

@@ -1,0 +1,749 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Scaffold SvelteKit app with Tailwind and Supabase Auth",
+        "description": "Bootstrap SvelteKit + Tailwind + Supabase client and email link auth. Add Makefile and scripts/dev.sh.",
+        "details": "Initialize SvelteKit project with TypeScript, Tailwind CSS, and Supabase JS client. Configure auth with magic link/email login, environment variables, and a basic layout with navbar. Add minimal Makefile and scripts/dev.sh to run the dev server.",
+        "testStrategy": "Manual verification: sign-in flow with magic link, environment vars loaded, app boots and renders navbar.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize SvelteKit Project with TypeScript",
+            "description": "Bootstrap a new SvelteKit project using the skeleton template. Configure it with TypeScript, ESLint, and Prettier to establish a baseline for the application.",
+            "dependencies": [],
+            "details": "Run `npm create svelte@latest .` in the project root. Select 'Skeleton project', 'Yes, using TypeScript syntax', and add ESLint and Prettier. After creation, run `npm install` to fetch the dependencies. This will create the initial `src`, `package.json`, and `svelte.config.js` files.",
+            "status": "pending",
+            "testStrategy": "Verify that `npm run dev` starts the server and a blank page is visible. Check that `package.json` and `svelte.config.js` are present."
+          },
+          {
+            "id": 2,
+            "title": "Integrate and Configure Tailwind CSS",
+            "description": "Add Tailwind CSS to the project for styling. This includes setting up PostCSS, the Tailwind configuration file, and a base stylesheet with the required directives.",
+            "dependencies": [],
+            "details": "Use the official Svelte-add utility: `npx svelte-add@latest tailwindcss`. This will create `tailwind.config.cjs` and `postcss.config.cjs`. Create `src/app.css` and add the core directives: `@tailwind base; @tailwind components; @tailwind utilities;`. Import this stylesheet in the root layout `src/routes/+layout.svelte`.",
+            "status": "pending",
+            "testStrategy": "Apply a Tailwind class (e.g., `bg-gray-800`, `text-white`) to the body in `+layout.svelte` and confirm the style is applied in the browser."
+          },
+          {
+            "id": 3,
+            "title": "Install and Configure Supabase JS Client",
+            "description": "Install the Supabase client library and set up the necessary environment variables. Create a centralized helper module to initialize and export the Supabase client instance for use throughout the app.",
+            "dependencies": [],
+            "details": "Run `npm install @supabase/supabase-js`. Create a `.env` file and populate it with `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY` from your Supabase project. Create a corresponding `.env.example` file. Create a new file `src/lib/supabaseClient.ts` that imports `$env/static/public`, initializes the client using the environment variables, and exports the client instance.",
+            "status": "pending",
+            "testStrategy": "In a temporary Svelte component, import the client and attempt a simple query (e.g., `supabase.from('some_table').select('*')`). Check the browser console for connection errors."
+          },
+          {
+            "id": 4,
+            "title": "Implement Magic Link Authentication UI and Logic",
+            "description": "Create the user-facing components and logic for signing in via a magic link (email OTP) and signing out. This involves creating a login page and handling the Supabase auth functions.",
+            "dependencies": [],
+            "details": "Create a new route `src/routes/login/+page.svelte`. Add a form with an email input and a button. On form submission, call the `supabase.auth.signInWithOtp` function with the user's email. Create a server-side form action for signing out by calling `supabase.auth.signOut` and redirecting.",
+            "status": "pending",
+            "testStrategy": "Navigate to `/login`, enter an email, and click the sign-in button. Verify that you receive the magic link email. Clicking the link should authenticate the session. Test the sign-out functionality."
+          },
+          {
+            "id": 5,
+            "title": "Create App Layout with Session Handling and Protected Routes",
+            "description": "Develop the main application layout to be session-aware. It should display different content (e.g., user email vs. login link) based on auth state. Implement route protection to redirect unauthenticated users.",
+            "dependencies": [],
+            "details": "Create a `src/routes/+layout.server.ts` to fetch the user's session from Supabase. Pass the session data to the page. In `src/routes/+layout.svelte`, use an `{#if data.session}` block to conditionally render a navbar with the user's email and a logout button, or a login link if no session exists. In the server layout load function, check for a session and redirect to `/login` if the user tries to access a protected route without one.",
+            "status": "pending",
+            "testStrategy": "When logged out, the navbar should show 'Login'. When logged in, it should show user info and 'Logout'. Attempting to access a protected page (e.g., `/dashboard`) while logged out should redirect to `/login`."
+          },
+          {
+            "id": 6,
+            "title": "Add Makefile and `scripts/dev.sh` for Development",
+            "description": "Create a `Makefile` and a helper shell script to standardize the process of starting the development server, as specified in the task requirements.",
+            "dependencies": [],
+            "details": "Create a directory named `scripts`. Inside it, create a file `dev.sh` containing `#!/bin/sh\nnpm run dev`. Make the script executable using `chmod +x scripts/dev.sh`. Create a `Makefile` in the project root with a `dev` target: `dev:\n\t@./scripts/dev.sh`. This provides a simple `make dev` command to run the project.",
+            "status": "pending",
+            "testStrategy": "Run `make dev` from the terminal. The command should successfully start the SvelteKit development server."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Database migrations and RLS",
+        "description": "Create SQL migrations 01_schema.sql, 02_rls.sql, 03_seed.sql per brief, with pg_trgm, tables, indexes, RLS policies, and seed data.",
+        "details": "Implement schema for app_user, hospital, bangsal, patient, soap with indexes. Enable RLS and create policies as specified. Add seed entries for hospitals, bangsal, and patients (Bintang, Bintang Putra, Nisa).",
+        "testStrategy": "Run migrations locally; verify RLS by querying as different users; confirm seed rows appear for the owner.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create 01_schema.sql with Tables, Extension, and Indexes",
+            "description": "Create the initial database schema file. This includes enabling the `pg_trgm` extension for fuzzy string matching and defining all required tables: `app_user`, `hospital`, `bangsal`, `patient`, and `soap`. Define all columns, data types, foreign key relationships, and indexes as specified in the brief.",
+            "dependencies": [],
+            "details": "Create a new directory `supabase/migrations`. Inside, create a file named `20230101000001_schema.sql`. Add `CREATE EXTENSION IF NOT EXISTS pg_trgm;` at the top. Define the `app_user` table to store user profiles linked to `auth.users`. Define `hospital` and `bangsal` tables with an `owner_id` referencing `app_user`. Define the `patient` table with a `searchable_name` column and a GIN index using `pg_trgm`. Define the `soap` table linked to `patient`. Ensure all foreign keys have `ON DELETE CASCADE` where appropriate.",
+            "status": "pending",
+            "testStrategy": "Run the migration using the Supabase CLI (`supabase db reset`) and connect to the local database to verify that all tables, columns, and indexes have been created correctly using `\\d <table>` commands in psql."
+          },
+          {
+            "id": 2,
+            "title": "Create 02_rls.sql with Row-Level Security Policies",
+            "description": "Create the second migration file to enable and configure Row-Level Security (RLS) for all tables. This ensures that users can only access and modify data they own.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Create a new migration file `20230101000002_rls.sql`. For each table (`app_user`, `hospital`, `bangsal`, `patient`, `soap`), first execute `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`. Then, create policies for `SELECT`, `INSERT`, `UPDATE`, and `DELETE`. Policies should generally check that `auth.uid() = owner_id`. For the `app_user` table, users should only be able to see and update their own record. For other tables, access should be restricted based on the `owner_id` column.",
+            "status": "pending",
+            "testStrategy": "After applying the migration, run `SELECT` queries as different mock users (using `SET ROLE` or a client configured with a specific user's JWT) to confirm that they can only see their own data and receive zero rows for data owned by others."
+          },
+          {
+            "id": 3,
+            "title": "Create 03_seed.sql with Initial Application Data",
+            "description": "Create a third migration file to seed the database with initial data for development and testing purposes. This includes default hospitals, wards (bangsal), and example patients.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Create a new migration file `20230101000003_seed.sql`. Add `INSERT` statements to populate the `hospital` and `bangsal` tables. Create a placeholder user to act as the owner of the seed data. Then, insert the specified patient records ('Bintang', 'Bintang Putra', 'Nisa'), ensuring they are linked to the placeholder owner's `user_id` and a seed hospital/bangsal.",
+            "status": "pending",
+            "testStrategy": "After running all migrations, query the `patient`, `hospital`, and `bangsal` tables to ensure the seed data has been inserted correctly and is associated with the correct owner."
+          },
+          {
+            "id": 4,
+            "title": "Add Makefile Targets for Database Management",
+            "description": "Update the project's `Makefile` to include convenient targets for managing the local Supabase database, such as applying migrations and resetting the database.",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3"
+            ],
+            "details": "Edit the `Makefile` in the project root. Add the following targets:\n- `db-start`: Executes `supabase start`.\n- `db-stop`: Executes `supabase stop`.\n- `db-reset`: Executes `supabase db reset` to wipe the local DB and re-apply all migrations from the `supabase/migrations` folder.\n- `db-push`: Executes `supabase db push` to apply new, unapplied migrations (useful for development).",
+            "status": "pending",
+            "testStrategy": "Run `make db-reset` from the command line and verify that the command executes successfully, wiping the database and applying the schema, RLS, and seed migrations."
+          },
+          {
+            "id": 5,
+            "title": "Document Database Migration Steps in README.md",
+            "description": "Update the main `README.md` file with a new section that explains how to set up the local database environment and run migrations using the newly created Makefile targets.",
+            "dependencies": [
+              "2.4"
+            ],
+            "details": "Add a 'Database Setup' section to `README.md`. Document the prerequisites, such as installing the Supabase CLI. Provide clear, step-by-step instructions on how to initialize the project with Supabase (`supabase init`), link it to a remote project if necessary, and use the `make db-reset` command to set up the local database schema and seed data.",
+            "status": "pending",
+            "testStrategy": "Ask a team member to follow the new documentation section to set up the project from scratch and confirm the instructions are clear and correct."
+          },
+          {
+            "id": 6,
+            "title": "Sanity-Check Indexes, Extensions, and RLS Policies",
+            "description": "Perform a final verification to ensure all database components are correctly implemented and functional after a full migration run.",
+            "dependencies": [
+              "2.4"
+            ],
+            "details": "After running `make db-reset`, connect to the local PostgreSQL instance. Run `\\dx` to confirm the `pg_trgm` extension is installed. For the `patient` table, run `\\d patient` to verify the GIN index on `searchable_name` exists. Execute a query with `EXPLAIN` using a `LIKE` or `ILIKE` clause on `searchable_name` to ensure the index is being used. Finally, execute queries as an anonymous role (`SET ROLE authenticated`) to confirm RLS policies block access as expected.",
+            "status": "pending",
+            "testStrategy": "The execution of the details themselves serves as the test. The goal is to confirm via direct inspection and query analysis that the database state matches the requirements."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Server routes: hospitals, bangsal, patients, SOAP CRUD",
+        "description": "Add SvelteKit server routes with Zod validation for managing hospitals, bangsal, patients, and SOAP entries.",
+        "details": "Implement REST-ish endpoints for list/create/update/delete hospitals and bangsal, manage patients (with search by name), and SOAP read/write for latest record and plan items. Centralize DB access in lib/db.ts and input schemas in lib/types.ts.",
+        "testStrategy": "Unit test validation schemas; manual CRUD through API and UI; ensure RLS errors are handled gracefully.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Establish Server-Side DB Access and Core Zod Schemas",
+            "description": "Create the foundational files for database access and data validation. This includes setting up a server-side Supabase client and defining the primary Zod schemas for the application's data models.",
+            "dependencies": [],
+            "details": "Create `src/lib/db.ts` to initialize and export a server-side Supabase client, using environment variables for the service role key. Create `src/lib/types.ts` and define Zod schemas for `Hospital`, `Bangsal`, `Patient`, and `SOAP` entities. These schemas will be used for input validation in all subsequent API endpoints.",
+            "status": "pending",
+            "testStrategy": "Verify that the Supabase client can connect from the server. Write unit tests for the Zod schemas to ensure they correctly validate both valid and invalid data structures."
+          },
+          {
+            "id": 2,
+            "title": "Implement Hospital CRUD API Endpoints",
+            "description": "Develop the SvelteKit server routes to perform Create, Read, Update, and Delete (CRUD) operations for hospitals.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Create `src/routes/api/hospitals/+server.ts` to handle `GET` (list all) and `POST` (create new). Create `src/routes/api/hospitals/[id]/+server.ts` for `GET` (fetch one), `PUT` (update), and `DELETE`. Use the `hospitalSchema` from `src/lib/types.ts` for request body validation.",
+            "status": "pending",
+            "testStrategy": "Use an API client like Postman or cURL to manually test each endpoint: creating a hospital, listing all, fetching the created one by ID, updating it, and finally deleting it. Verify input validation fails with a 400 error for invalid data."
+          },
+          {
+            "id": 3,
+            "title": "Implement Bangsal CRUD API Endpoints",
+            "description": "Develop the server routes for managing `bangsal` (wards), which are associated with hospitals.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Create `src/routes/api/bangsal/+server.ts` to handle `POST` (create). Implement listing via `GET /api/bangsal?hospital_id={uuid}`. Create `src/routes/api/bangsal/[id]/+server.ts` for `PUT` (update) and `DELETE`. Ensure all operations validate against the `bangsalSchema` and correctly handle the `hospital_id` foreign key.",
+            "status": "pending",
+            "testStrategy": "After creating a hospital via the API, test creating a bangsal associated with it. Test the `GET` endpoint with and without the `hospital_id` query parameter. Perform update and delete operations on the created bangsal."
+          },
+          {
+            "id": 4,
+            "title": "Implement Patient Management and Search API Endpoints",
+            "description": "Create API endpoints for patient CRUD operations, including a specialized search function.",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Create `src/routes/api/patients/+server.ts` for `POST` (create) and `GET` (list with filtering by `hospital_id` and `bangsal_id`). Implement a text-based search on patient names using Supabase's `ilike` operator. Create `src/routes/api/patients/[id]/+server.ts` for `PUT` (update). Validate all inputs with the `patientSchema`.",
+            "status": "pending",
+            "testStrategy": "Test creating patients in a specific bangsal. Verify that listing patients can be filtered by hospital and bangsal. Test the name search with partial and full names to ensure `ilike` is working correctly. Test the update endpoint."
+          },
+          {
+            "id": 5,
+            "title": "Implement Core SOAP Record Read/Write API Endpoints",
+            "description": "Build the API endpoints for creating, reading, and updating the main sections (Subjective, Objective, Assessment) of a patient's SOAP record.",
+            "dependencies": [
+              "3.1",
+              "3.4"
+            ],
+            "details": "Create `src/routes/api/patients/[patient_id]/soap/latest/+server.ts` to handle `GET` requests for the most recent SOAP record. Implement `POST` on `src/routes/api/patients/[patient_id]/soap` to create a new SOAP entry. Create `src/routes/api/soap/[soap_id]/+server.ts` to handle `PUT` requests for updating the S, O, and A fields. Use the `soapSchema` for validation.",
+            "status": "pending",
+            "testStrategy": "For a created patient, test creating a new SOAP record. Call the `GET latest` endpoint to ensure the correct record is returned. Update the S/O/A fields of that record and verify the changes are persisted."
+          },
+          {
+            "id": 6,
+            "title": "Implement SOAP Plan Management and Centralized Error Handling",
+            "description": "Add functionality for managing the 'Plan' section of a SOAP note and implement robust, centralized error handling across all new API routes.",
+            "dependencies": [
+              "3.2",
+              "3.3",
+              "3.4",
+              "3.5"
+            ],
+            "details": "Create an endpoint, e.g., `POST /api/soap/[soap_id]/plan-items`, to append a new item to the plan's JSONB array. Implement a separate endpoint or function to recompute plan item statuses. Create a utility in `src/lib/server/utils.ts` to map Supabase errors (e.g., PostgREST, RLS) to SvelteKit `error()` responses (4xx/5xx) and refactor all previously created endpoints to use it.",
+            "status": "pending",
+            "testStrategy": "Test adding multiple plan items to a SOAP record. Manually trigger an RLS violation (e.g., by changing policies in Supabase UI) and confirm the API returns a 403/404, not a 500. Send malformed JSON to all `POST`/`PUT` endpoints to verify consistent 400-level error responses."
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "MCP server: soap-tools.mjs",
+        "description": "Implement MCP server over stdio with tools: patient.searchByName, soap.getLatest, soap.appendPlanItem, soap.recomputePlanStatuses.",
+        "details": "Use @modelcontextprotocol/sdk and zod. Secure with service-role key on server side only. Expose safe fields only and structured inputs/outputs. Provide npm bin entry and README instructions for registration in hosts.",
+        "testStrategy": "Local invocation in headless mode; Zod validates inputs; verify tool outputs with mock Supabase project and service role.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Scaffold MCP Server and Initialize Supabase Client",
+            "description": "Create the `mcp/` directory and the `mcp/soap-tools.mjs` file. Install the `@modelcontextprotocol/sdk` and `dotenv` dependencies. Set up the basic MCP server structure using `ModelContextServer` and `StdioServerTransport`. Initialize a privileged Supabase client for server-to-server communication.",
+            "dependencies": [],
+            "details": "In `mcp/soap-tools.mjs`, add a shebang `#!/usr/bin/env node`. Use `dotenv` to load `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from a `.env` file. Create a Supabase client instance using the service role key, which is necessary to bypass Row Level Security for these administrative tasks. This client will be used by all tools.",
+            "status": "pending",
+            "testStrategy": "Run `node mcp/soap-tools.mjs` to ensure it starts without errors and that the Supabase client initializes correctly."
+          },
+          {
+            "id": 2,
+            "title": "Define Zod Schemas for Tool Inputs and Outputs",
+            "description": "Define and export all necessary Zod schemas for the inputs and outputs of the four required tools: `patient.searchByName`, `soap.getLatest`, `soap.appendPlanItem`, and `soap.recomputePlanStatuses`.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Create these schemas within `mcp/soap-tools.mjs` or a separate `mcp/types.mjs`. The output schemas must only expose safe fields. For `patient.searchByName`, the output schema should include `id`, `name`, `hospital` (name), `bangsal` (name), and `room`. For `soap.getLatest`, the input should take `patientId` and an optional `select` array of strings. For `soap.appendPlanItem`, the input should include `patientId`, `item` (string), and `days` (number).",
+            "status": "pending",
+            "testStrategy": "Verify schemas by attempting to parse valid and invalid mock data. Ensure no sensitive fields are included in output schemas."
+          },
+          {
+            "id": 3,
+            "title": "Implement `patient.searchByName` Tool",
+            "description": "Implement and register the `patient.searchByName` tool. This tool will perform a case-insensitive, fuzzy search for patients and return a limited list of results.",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "Use the privileged Supabase client to query the `patients` table. The query should use `.ilike('name', `%${query}%`)` for the search. Join with the `hospitals` and `bangsal` tables to retrieve their respective names. Limit the results to 5. The function should be registered with the MCP server instance with its corresponding input and output Zod schemas.",
+            "status": "pending",
+            "testStrategy": "Invoke the tool locally with various search terms and verify the output matches the expected structure and data."
+          },
+          {
+            "id": 4,
+            "title": "Implement `soap.getLatest` Tool",
+            "description": "Implement and register the `soap.getLatest` tool. This tool will retrieve the most recent SOAP record for a specified patient, with an option to select specific fields.",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "The tool will take a `patientId` and an optional `select` array (e.g., `['a', 'p', 'summary']`). Query the `soap` table, filtering by `patient_id`, ordering by `created_at` descending, and limiting to 1. If the `select` parameter is provided and not empty, filter the resulting SOAP object to return only the requested keys. Otherwise, return a default set of fields like `id`, `created_at`, and `summary`. Register the tool with the MCP server.",
+            "status": "pending",
+            "testStrategy": "Test by calling the tool with and without the `select` parameter to ensure the correct data is returned in each case."
+          },
+          {
+            "id": 5,
+            "title": "Implement `soap.appendPlanItem` Tool",
+            "description": "Implement and register the `soap.appendPlanItem` tool. This tool will add a new item to the `plan` array of a patient's latest SOAP record.",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "The tool requires `patientId`, `item` text, and `days`. First, fetch the latest SOAP record for the patient. The new plan item's `start_date` should default to the current date in 'Asia/Jakarta' timezone. Calculate the `end_date` as `start_date + days - 1`. Use `date-fns-tz` for timezone-aware date calculations. Append the new plan item object to the existing `plan` JSONB array and update the SOAP record in the database. Register the tool.",
+            "status": "pending",
+            "testStrategy": "Call the tool to add a plan item. Verify in the database that the item was added to the correct SOAP record and that `start_date` and `end_date` are calculated correctly."
+          },
+          {
+            "id": 6,
+            "title": "Implement `soap.recomputePlanStatuses` and Finalize Packaging",
+            "description": "Implement the `soap.recomputePlanStatuses` tool and prepare the package for use by host applications by updating `package.json` and the `README.md`.",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "For the tool, fetch the latest SOAP for the given `patientId`. Iterate through its `plan` array. Compare each item's `end_date` with the current date ('Asia/Jakarta' timezone). Set the item's `status` to 'done' if the `end_date` is in the past, otherwise set it to 'active'. Update the entire SOAP record with the modified `plan` array. For packaging, add a `bin` entry to `package.json` (e.g., `\"soap-tools\": \"mcp/soap-tools.mjs\"`). Add a section to `README.md` explaining how to install the package and register the `soap-tools` command in an MCP host.",
+            "status": "pending",
+            "testStrategy": "Create plan items with past and future end dates. Run the recompute tool and verify that the statuses are updated correctly in the database. Check if the npm bin command is executable after `npm install`."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "NL orchestration API: /api/nl",
+        "description": "Implement /api/nl that maps intents to MCP calls: ask_diagnosis(name) and add_medication(name, item).",
+        "details": "Create intent detector and normalizer in lib/nl.ts. For ask_diagnosis, search, disambiguate if multiple, then getLatest(select:[\"a\"]). For add_medication, parse plan item, append, recompute statuses, and return split active/done view. Default tz Asia/Jakarta.",
+        "testStrategy": "Unit tests for intent parsing; integration tests calling MCP mock; manual tests with Indonesian examples from brief.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Medication Plan Parsing Utilities in lib/plan.ts",
+            "description": "Create and implement the plan parsing utility module at `src/lib/plan.ts`. This module will be responsible for converting natural language medication instructions into a structured object.",
+            "dependencies": [],
+            "details": "Implement a function that parses a string like 'paracetamol 500mg oral 3x1 selama 5 hari' into a structured object: `{ drug: string, route: string, dose: string, freq: string, days: number, start_date?: Date }`. Implement logic to calculate the `end_date` based on `start_date` and `days`. All date calculations must use the 'Asia/Jakarta' timezone as the default. Also, define and implement status computation rules (e.g., 'active', 'done') based on the current date relative to the plan item's start and end dates.",
+            "status": "pending",
+            "testStrategy": "Create a corresponding `src/lib/plan.test.ts` file and add unit tests covering various formats of Indonesian medication strings, including different routes, frequencies, and durations."
+          },
+          {
+            "id": 2,
+            "title": "Implement Intent Detection and Normalization in lib/nl.ts",
+            "description": "Create the intent detection module at `src/lib/nl.ts`. This module will analyze an input string to determine the user's intent and extract relevant parameters.",
+            "dependencies": [],
+            "details": "Implement a primary function, `detectIntent(query: string)`, that uses regular expressions and keyword matching to identify one of two intents: `ask_diagnosis` or `add_medication`. For `ask_diagnosis`, it should extract the patient's name (e.g., from 'diagnosis Bintang'). For `add_medication`, it should extract the patient's name and the full medication item string (e.g., from 'tambah obat Bintang: paracetamol...'). The function should return a structured object like `{ intent: 'ask_diagnosis', params: { name: 'Bintang' } }` or an error/unknown state.",
+            "status": "pending",
+            "testStrategy": "Create a `src/lib/nl.test.ts` file with unit tests to verify that various phrasings for 'ask_diagnosis' and 'add_medication' are correctly identified and their parameters extracted."
+          },
+          {
+            "id": 3,
+            "title": "Create /api/nl Endpoint and Define Response Contracts",
+            "description": "Set up the SvelteKit server route at `src/routes/api/nl/+server.ts` and define the Zod schemas for its request and response structures.",
+            "dependencies": [],
+            "details": "Create the file `src/routes/api/nl/+server.ts` to handle POST requests. In `src/lib/types.ts` (or a new dedicated file), define Zod schemas for the API. This includes the input schema `{ query: z.string() }` and the possible output schemas: a success response, an error response, and a specific disambiguation prompt schema for when multiple patients are found. The initial implementation of the endpoint should validate the input and return a placeholder response.",
+            "status": "pending",
+            "testStrategy": "Manually test the endpoint using a tool like cURL or Postman to ensure it accepts valid POST requests and rejects invalid ones according to the Zod schema."
+          },
+          {
+            "id": 4,
+            "title": "Implement `ask_diagnosis` Orchestration Flow",
+            "description": "Implement the complete server-side logic for handling the `ask_diagnosis` intent within the `/api/nl` endpoint.",
+            "dependencies": [
+              "5.2",
+              "5.3"
+            ],
+            "details": "In `src/routes/api/nl/+server.ts`, after calling `detectIntent`, check if the intent is `ask_diagnosis`. If so, use the extracted patient name to call the `patient.searchByName` MCP tool. If the tool returns multiple patients, format and send a disambiguation prompt response using the predefined schema. If one patient is found, proceed to call the `soap.getLatest` MCP tool with the patient's ID and the option `select: ['a']`. Format the resulting assessment data into the success response schema and return it.",
+            "status": "pending",
+            "testStrategy": "Write an integration test that mocks the MCP tool responses for `patient.searchByName` (for both single and multiple results) and `soap.getLatest` to verify the orchestration logic."
+          },
+          {
+            "id": 5,
+            "title": "Implement `add_medication` Orchestration Flow",
+            "description": "Implement the complete server-side logic for handling the `add_medication` intent within the `/api/nl` endpoint.",
+            "dependencies": [
+              "5.1",
+              "5.2",
+              "5.3"
+            ],
+            "details": "In `src/routes/api/nl/+server.ts`, handle the `add_medication` intent. First, use the plan parser from `lib/plan.ts` to convert the medication string into a structured object. Then, call the `soap.appendPlanItem` MCP tool with the patient's ID and the structured plan item. After that, call the `soap.recomputePlanStatuses` MCP tool for that patient. Finally, retrieve the updated plan, split it into 'active' and 'done' lists, and return this structured view in the API response.",
+            "status": "pending",
+            "testStrategy": "Write an integration test that mocks the MCP tool responses for `soap.appendPlanItem` and `soap.recomputePlanStatuses` to verify the correct sequence of calls and data transformation."
+          },
+          {
+            "id": 6,
+            "title": "Implement Logging and Finalize Unit Tests",
+            "description": "Add structured logging to the API endpoint for observability and ensure the unit tests for the utility modules are comprehensive.",
+            "dependencies": [
+              "5.4",
+              "5.5"
+            ],
+            "details": "Enhance `src/routes/api/nl/+server.ts` by adding logging statements (e.g., using `console.log` with structured prefixes like `[API:/api/nl]`). Log key events: incoming request body, detected intent, MCP tool calls being made, and any errors encountered. Review and expand the unit tests in `src/lib/plan.test.ts` and `src/lib/nl.test.ts` to cover edge cases and ensure the core parsing and detection logic is robust.",
+            "status": "pending",
+            "testStrategy": "Run the full test suite to confirm all unit tests pass. Manually trigger API calls and inspect the server console output to verify that logs are being generated correctly and provide useful information for debugging."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Telegram webhook endpoint",
+        "description": "Implement /webhooks/telegram to receive updates, verify token/secret, and delegate to NL handler with disambiguation flow.",
+        "details": "Use telegraf or raw Bot API via undici. Normalize messages, support commands: diagnosis <name>, tambah obat ... N hari. Reuse NL orchestration and MCP tools. Document webhook setup steps.",
+        "testStrategy": "Local webhook simulation; unit tests for parser; manual test with Telegram bot after webhook configured.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Telegram Webhook Endpoint and Add Telegraf",
+            "description": "Create the basic SvelteKit server route at `/webhooks/telegram/+server.ts`. Install the `telegraf` library and set up a basic POST handler that receives updates from Telegram. Implement security by verifying a secret token passed in the request against a `TELEGRAM_SECRET_TOKEN` environment variable.",
+            "dependencies": [],
+            "details": "In `src/routes/webhooks/telegram/+server.ts`, create a `POST` function. Add `telegraf` to `package.json`. Initialize a Telegraf bot instance. The handler should check for a `X-Telegram-Bot-Api-Secret-Token` header and compare it with `process.env.TELEGRAM_SECRET_TOKEN`. If valid, process the request with `bot.handleUpdate(request.body)`. If invalid, return a 403 Forbidden. Ensure `TELEGRAM_BOT_TOKEN` is also configured in the environment.",
+            "status": "pending",
+            "testStrategy": "Use a tool like `curl` or Postman to send a mock Telegram update JSON to the local endpoint, verifying that it correctly checks the secret token and returns a 200 OK for valid requests and 403 for invalid ones."
+          },
+          {
+            "id": 2,
+            "title": "Normalize Messages and Map to Intents",
+            "description": "Integrate the natural language processing logic from `lib/nl.ts` into the webhook handler. For each incoming text message, normalize the Indonesian text (e.g., lowercase, trim whitespace) and use the NL module to parse it into a structured intent, such as `ask_diagnosis` or `add_medication`, along with extracted entities like patient name, medication details, and duration.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Within the Telegraf message handler (`bot.on('message', ...)`), pass the message text to a function in `src/lib/nl.ts` (to be created if not present, as per Task 9). This function should use regular expressions or other logic to identify commands like `diagnosis <nama>` and `tambah obat <nama_obat> untuk <nama_pasien> selama <N> hari`. It should return an object like `{ intent: 'add_medication', entities: { patientName: '...', medicationName: '...', duration: ... } }` or `null` if no intent is matched.",
+            "status": "pending",
+            "testStrategy": "Add unit tests for the `lib/nl.ts` parser with various Indonesian message examples. Manually send test messages to the bot and log the parsed intent object to verify correctness."
+          },
+          {
+            "id": 3,
+            "title": "Implement Patient Disambiguation Flow",
+            "description": "When an intent includes a patient name, search the database for matching patients. If exactly one patient is found, proceed. If multiple patients match the name, reply to the user asking for clarification, presenting the matching patients as an inline keyboard. Handle the subsequent `callback_query` to identify the correct patient for the original request.",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "After parsing an intent, use a database function (e.g., `findPatientsByName(name)`) from `lib/server/db.ts`. If the result count is greater than 1, use `ctx.reply()` with `Markup.inlineKeyboard([...])` from Telegraf to send the options. The callback data for each button should contain a unique patient ID. Implement a `bot.on('callback_query', ...)` handler to capture the selection, retrieve the patient ID, and proceed with the original intent.",
+            "status": "pending",
+            "testStrategy": "Ensure the database contains multiple patients with similar names (e.g., 'Budi Santoso', 'Budi Hartono'). Send a command using the ambiguous name 'Budi' and verify the bot replies with an inline keyboard. Select an option and confirm the subsequent action is performed for the correct patient."
+          },
+          {
+            "id": 4,
+            "title": "Wire Intents to DB Actions and Format Responses",
+            "description": "Connect the parsed intents for a confirmed patient to the corresponding backend logic. For `ask_diagnosis`, fetch the patient's latest SOAP record and format the 'Assessment' part into a human-friendly response. For `add_medication`, use the plan utilities to add the new medication to the patient's current plan. Send a confirmation or the requested information back to the user in clear Indonesian.",
+            "dependencies": [
+              "6.3"
+            ],
+            "details": "Create an orchestrator function that takes the `intent` object and the confirmed `patientId`. Use a switch statement on `intent.intent`. For `ask_diagnosis`, call a DB function to get the latest SOAP and format a string like 'Diagnosis terakhir untuk [Nama Pasien] adalah [Assessment]'. For `add_medication`, call a function like `addMedicationToPlan(patientId, medicationDetails)` and respond with 'Obat [Nama Obat] berhasil ditambahkan untuk [Nama Pasien]'.",
+            "status": "pending",
+            "testStrategy": "Manually test the end-to-end flow for both `diagnosis` and `tambah obat` commands. Verify that a diagnosis query returns the correct text from the database and that adding a medication correctly creates a new entry in the patient's plan in Supabase."
+          },
+          {
+            "id": 5,
+            "title": "Document Webhook Setup and Bot Commands in README",
+            "description": "Update the `README.md` file with a new section for the Telegram Bot. This section should detail the step-by-step process for setting up the webhook and provide a clear list of supported commands and their syntax.",
+            "dependencies": [
+              "6.4"
+            ],
+            "details": "In `README.md`, add a 'Telegram Bot Integration' section. Explain how to: 1. Create a bot with BotFather to get a token. 2. Set the `TELEGRAM_BOT_TOKEN` and `TELEGRAM_SECRET_TOKEN` environment variables. 3. Use the Telegram Bot API (e.g., via a `curl` command) to set the webhook URL to `https://<your-app-url>/webhooks/telegram`, including the secret token. 4. List the available commands, e.g., `diagnosis <nama pasien>` and `tambah obat <nama obat> untuk <nama pasien> selama <jumlah> hari`.",
+            "status": "pending",
+            "testStrategy": "Ask a team member to follow the documentation to set up a bot for their local development environment. Verify they can successfully configure the webhook and use the commands."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "UI: Hospital/Bangsal managers and Patient list",
+        "description": "Build dashboard with hospital → bangsal filter, and patient list with room number and search.",
+        "details": "Pages: /, /hospitals, /bangsal, /patients/[id]. Implement CRUD UIs for hospitals and bangsal, and patient creation (select hospital, bangsal, room).",
+        "testStrategy": "Manual UI verification; confirm list filters and search by name works; ensure RLS errors handled in UI.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Hospital Management UI at `/hospitals`",
+            "description": "Implement a page at `/hospitals` to list, create, update, and delete hospitals. This page will serve as the foundational CRUD interface, establishing patterns for subsequent UI tasks.",
+            "dependencies": [],
+            "details": "Create `src/routes/hospitals/+page.svelte` and `+page.server.ts`. Use `+page.server.ts` to load the list of hospitals and define SvelteKit form actions for create, update, and delete. The UI should use `shadcn-svelte` components: a `Table` to list hospitals (columns: Name, Actions) and a `Dialog` for the create/edit form, which will contain an `Input` for the hospital name and a `Button` to submit.",
+            "status": "pending",
+            "testStrategy": "Manually verify that you can create, view the list of, edit, and delete hospitals. Confirm the UI updates correctly after each action."
+          },
+          {
+            "id": 2,
+            "title": "Create Bangsal Management UI at `/bangsal`",
+            "description": "Implement a page at `/bangsal` for CRUD operations on bangsal. The list of bangsal must be scoped by a selected hospital, demonstrating a dependent relationship in the UI.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Create `src/routes/bangsal/+page.svelte` and `+page.server.ts`. The page must feature a `shadcn-svelte` `Select` component to choose a hospital. The list of hospitals for this select should be loaded in `+page.server.ts`. Upon selection, the `Table` below should display the bangsal for that hospital. Implement CRUD form actions, ensuring the `hospital_id` is passed along with the bangsal name.",
+            "status": "pending",
+            "testStrategy": "Verify the hospital dropdown populates. Select a hospital and confirm its bangsal are listed. Test the create, update, and delete functionality for bangsal within the scope of the selected hospital."
+          },
+          {
+            "id": 3,
+            "title": "Implement Dashboard Patient List and Filters at `/`",
+            "description": "Develop the root page (`/`) to display a list of patients, filterable by Hospital and then by Bangsal. This will be the main user dashboard.",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "Modify `src/routes/+page.svelte` and `+page.server.ts`. Add two `Select` components for filtering: one for Hospitals, and a second for Bangsal that populates based on the hospital selection. Use URL search parameters (e.g., `?hospitalId=...&bangsalId=...`) to manage filter state. Display the filtered patients in a `Table` with columns for Patient Name and Room Number. Each patient row should be a link to `/patients/[id]`.",
+            "status": "pending",
+            "testStrategy": "Confirm the hospital and bangsal filters work in tandem. Verify that changing the filters updates the URL and the patient list correctly. Check that patient links point to the correct URL."
+          },
+          {
+            "id": 4,
+            "title": "Add Patient Search and Creation to Dashboard",
+            "description": "Enhance the dashboard page (`/`) with a search input to filter patients by name and a dialog form to create new patients.",
+            "dependencies": [
+              "7.3"
+            ],
+            "details": "On `src/routes/+page.svelte`, add an `Input` for searching. The search should trigger an API call to a server endpoint that finds patients by name. Implement a 'New Patient' `Button` that opens a `Dialog`. The creation form within the dialog must include inputs for Patient Name, Room Number, and `Select` components for choosing the Hospital and Bangsal. Create a SvelteKit form action to handle the submission.",
+            "status": "pending",
+            "testStrategy": "Test the search input by typing a patient's name and verifying the list filters. Test the 'New Patient' dialog to create a patient and confirm they appear in the list upon successful creation."
+          },
+          {
+            "id": 5,
+            "title": "Update Main Layout with Navigation",
+            "description": "Modify the root layout to include a persistent navigation bar, providing easy access to the Dashboard (`/`), Hospitals (`/hospitals`), and Bangsal (`/bangsal`) pages.",
+            "dependencies": [
+              "7.1",
+              "7.2",
+              "7.3"
+            ],
+            "details": "Edit `src/routes/+layout.svelte` and its corresponding `+layout.server.ts`. Create a header or sidebar component containing navigation links. This component should also display user session information (e.g., user email) and a logout button, using data loaded from the root layout server file. Ensure the layout is clean and responsive.",
+            "status": "pending",
+            "testStrategy": "Verify the navigation bar appears on all pages. Click each link to ensure it navigates to the correct page. Confirm the logout button functions as expected."
+          },
+          {
+            "id": 6,
+            "title": "Implement Loading, Error, and Empty States",
+            "description": "Refine the user experience across all new pages by implementing clear loading indicators, user-friendly error messages, and helpful messages for empty data states.",
+            "dependencies": [
+              "7.4",
+              "7.5"
+            ],
+            "details": "Across `/`, `/hospitals`, and `/bangsal`, use Svelte's `#await` blocks or a store-based loading flag to show `shadcn-svelte` `Skeleton` components while data is being fetched. For tables with no data, display a clear message (e.g., 'No hospitals found.'). When form actions or data loads fail, especially due to RLS policies, catch the error and display a user-friendly `Alert` or `Toast` (e.g., 'You do not have permission to view these patients.').",
+            "status": "pending",
+            "testStrategy": "Simulate slow network conditions to verify loading skeletons appear. Manually delete all hospitals to check the empty state message. Attempt an action that would be denied by RLS and confirm a readable error message is shown to the user."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "UI: Patient profile and SOAP screen",
+        "description": "Implement /patients/[id] and /patients/[id]/soap to view latest SOAP, edit S/O/A, and view plan split (active vs done).",
+        "details": "Add NL command box on patient page and navbar that posts to /api/nl and renders structured results. Use date-fns and Asia/Jakarta time zone.",
+        "testStrategy": "Manual verification of viewing/editing SOAP and NL box behaviors; confirm plan items split correctly after recompute.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Patient Profile Page `/patients/[id]`",
+            "description": "Create the dynamic route and page to display a patient's basic demographic information. This page will serve as the entry point for viewing patient-specific data.",
+            "dependencies": [],
+            "details": "Create `src/routes/patients/[id]/+page.svelte` and `+page.server.ts`. In the `load` function within `+page.server.ts`, fetch the patient's data (name, MRN, room, hospital, bangsal) from the API endpoint (e.g., `GET /api/patients/[id]`). In `+page.svelte`, render this information in a clean, read-only layout using Tailwind CSS for styling. Add a prominent link or button to navigate to the SOAP page (`/patients/[id]/soap`).",
+            "status": "pending",
+            "testStrategy": "Manually navigate to a patient's URL and verify that their demographic data is correctly displayed. Check that the link to the SOAP page is present and correctly formatted."
+          },
+          {
+            "id": 2,
+            "title": "Implement SOAP Viewer at `/patients/[id]/soap`",
+            "description": "Create the page to view the latest SOAP (Subjective, Objective, Assessment, Plan) for a specific patient. Initially, this will be a read-only view.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Create `src/routes/patients/[id]/soap/+page.svelte` and `+page.server.ts`. In the `load` function, fetch the latest SOAP record for the patient ID from the API (e.g., `GET /api/patients/[id]/soap/latest`). In the Svelte component, structure the page with clear headings for 'Subjective', 'Objective', and 'Assessment', and display the fetched text content for each. The 'Plan' section will be handled in a subsequent subtask.",
+            "status": "pending",
+            "testStrategy": "Navigate from the patient profile page to the SOAP page. Verify that the latest S, O, and A sections are fetched and displayed correctly for the given patient."
+          },
+          {
+            "id": 3,
+            "title": "Enable Editing for S/O/A Sections with Optimistic Updates",
+            "description": "Convert the read-only Subjective, Objective, and Assessment sections into editable text areas and implement the save functionality.",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "In `src/routes/patients/[id]/soap/+page.svelte`, replace the static text displays for S, O, and A with `<textarea>` elements bound to the page's data store. Add a 'Save' button. On click, this button should trigger a `fetch` call to the update endpoint (e.g., `PUT /api/patients/[id]/soap`). Implement optimistic updates by immediately reflecting the change in the UI. Use a toast library like `svelte-sonner` to provide feedback on success or failure of the save operation.",
+            "status": "pending",
+            "testStrategy": "Edit the content of the S, O, or A text areas and click save. Verify the UI updates instantly. Check the network tab to confirm the API call is made. Refresh the page to ensure the changes have been persisted."
+          },
+          {
+            "id": 4,
+            "title": "Create Plan Viewer Component with Active/Done Split",
+            "description": "Develop a dedicated component to display the 'Plan' items, splitting them into 'Active' and 'Done' lists, and format dates correctly.",
+            "dependencies": [
+              "8.2"
+            ],
+            "details": "Create a new component `src/lib/components/PlanViewer.svelte`. This component will accept the `plan` array from the SOAP data as a prop. Inside the component, iterate through the plan items and categorize them into 'Active' and 'Done' based on their status field. Use `date-fns` and `date-fns-tz` to format any timestamps associated with the plan items to the 'Asia/Jakarta' timezone. Display the two lists clearly. Integrate this component into the `/patients/[id]/soap` page.",
+            "status": "pending",
+            "testStrategy": "On the SOAP page, verify that plan items are correctly separated into 'Active' and 'Done' lists. Check that all dates are displayed in the 'Asia/Jakarta' timezone and are formatted legibly."
+          },
+          {
+            "id": 5,
+            "title": "Implement Reusable Natural Language Command Box Component",
+            "description": "Create a Svelte component for a natural language command input that communicates with the `/api/nl` endpoint.",
+            "dependencies": [],
+            "details": "Create `src/lib/components/NLCommandBox.svelte`. The component should feature a text input and a submit button. On form submission, it should POST the input value to the `/api/nl` endpoint. It must handle the API's JSON response, which could be a success message, structured data to display, or a disambiguation prompt requiring further user input. Implement basic rendering logic for these different response types.",
+            "status": "pending",
+            "testStrategy": "Manually test the component by typing a command (e.g., 'tambah obat paracetamol') and submitting. Verify it sends a POST request to `/api/nl` and correctly renders the response from the server, including any prompts."
+          },
+          {
+            "id": 6,
+            "title": "Integrate NL Command Box and Finalize Layouts",
+            "description": "Place the NL Command Box in the main navbar and on the patient page, and ensure all new pages are minimally responsive.",
+            "dependencies": [
+              "8.1",
+              "8.5"
+            ],
+            "details": "Import and add the `NLCommandBox.svelte` component into the main application layout, likely `src/routes/+layout.svelte`, to make it globally accessible from the navbar. Add a second instance of the component to the `/patients/[id]` page, potentially pre-configured with the patient's context. Finally, review the `/patients/[id]` and `/patients/[id]/soap` pages and apply Tailwind CSS utility classes to ensure they are usable on mobile devices.",
+            "status": "pending",
+            "testStrategy": "Verify the NL command box appears and functions in the navbar across all pages. On the patient profile page, confirm the context-specific command box is present. Check both the patient profile and SOAP pages on a mobile screen size to ensure content is readable and usable."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Tests: plan utilities and NL flows",
+        "description": "Add minimal tests for plan recompute/append utilities and NL intent parsing.",
+        "details": "Implement lib/plan.ts to compute end_date and statuses. Test append + recompute scenarios and Indonesian examples mapping to intents.",
+        "testStrategy": "Automated unit tests for lib/plan and lib/nl; run in CI/local.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Test Runner and Add `npm test` Script",
+            "description": "Set up the testing environment by installing and configuring Vitest. Add an `npm test` script to `package.json` for easy local execution and future CI integration.",
+            "dependencies": [],
+            "details": "Install `vitest`, `@vitest/ui`, and `c8` as dev dependencies. Create a `vitest.config.ts` file in the project root to configure test paths to include `**/*.test.ts?(x)`. Add the following scripts to `package.json`: `\"test\": \"vitest\"`, `\"test:ui\": \"vitest --ui\"`, and `\"coverage\": \"vitest run --coverage\"`. This initial setup is required before any tests can be written or run.",
+            "status": "pending",
+            "testStrategy": "Run `npm test` to ensure the test runner is configured correctly and discovers no tests initially."
+          },
+          {
+            "id": 2,
+            "title": "Create Unit Tests for Plan Utilities in `lib/plan.ts`",
+            "description": "Implement unit tests for the plan computation logic in `lib/plan.ts`. Focus on verifying the correctness of `end_date` calculations and status updates (`active`/`done`) based on the current date in the `Asia/Jakarta` timezone.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Create a `lib/plan.test.ts` file. Use `vitest`'s `describe`, `it`, and `expect` functions. Test scenarios should include: calculating `end_date` for plans specified in days, and computing statuses for items that are active, expired (done), or in the future. Use `vi.useFakeTimers()` to control `Date.now()` for predictable results when testing status computations against the `Asia/Jakarta` timezone.",
+            "status": "pending",
+            "testStrategy": "Run `npm test lib/plan.test.ts` to execute the newly created tests."
+          },
+          {
+            "id": 3,
+            "title": "Create Unit Tests for NL Intent Parsing in `lib/nl.ts`",
+            "description": "Add unit tests for the natural language intent parser in `lib/nl.ts`. Ensure that various Indonesian phrases correctly map to the `ask_diagnosis` and `add_medication` intents and that their parameters are extracted accurately.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Create a `lib/nl.test.ts` file. Test cases should cover Indonesian examples. For `ask_diagnosis`, test 'diagnosis [name]'. For `add_medication`, test 'tambah obat [name] [duration] hari', ensuring medication name and duration are correctly parsed. Include tests for inputs that should result in an 'unknown' intent to handle edge cases.",
+            "status": "pending",
+            "testStrategy": "Run `npm test lib/nl.test.ts` to verify intent detection logic."
+          },
+          {
+            "id": 4,
+            "title": "Implement Test Data Factories and Helpers",
+            "description": "Create a set of helper functions or factories to generate consistent test data, such as `Patient`, `Soap`, and `PlanItem` objects. This will simplify writing the upcoming integration tests and improve their readability.",
+            "dependencies": [],
+            "details": "Create a new file, `tests/factories.ts`. Implement functions like `createTestPatient()`, `createTestSoap()`, and `createTestPlanItem(overrides)`. These factories should return objects conforming to the project's data structures (e.g., Zod schemas or database types), with sensible defaults that can be overridden for specific test cases.",
+            "status": "pending",
+            "testStrategy": "No direct tests for factories, but their usage in subsequent tests will validate them."
+          },
+          {
+            "id": 5,
+            "title": "Implement Integration Test for the `/api/nl` Endpoint",
+            "description": "Create a minimal integration test for the `/api/nl` endpoint. This test will verify the end-to-end flow from receiving a natural language query to invoking the correct, but mocked, MCP tool.",
+            "dependencies": [
+              "9.1",
+              "9.3",
+              "9.4"
+            ],
+            "details": "Create an `app/api/nl/nl.test.ts` file. Use Vitest's mocking capabilities (`vi.mock`) to mock the MCP client module (e.g., `lib/mcp.ts`). Use the test data factories from `tests/factories.ts` to construct mock return values for the MCP tools. Test two main flows: 1) An 'add_medication' query triggers the mocked `soap.appendPlanItem` and `soap.recomputePlanStatuses`. 2) An 'ask_diagnosis' query triggers the mocked `patient.searchByName` and `soap.getLatest`. Assert that the correct mocks were called with the expected parameters.",
+            "status": "pending",
+            "testStrategy": "Run `npm test app/api/nl/nl.test.ts` to verify the API orchestration logic without making real MCP calls."
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Docs and ops: README, ASSUMPTIONS, env, runbook",
+        "description": "Write README.md, ASSUMPTIONS.md, .env.example, runbook, and POSTMAN.json; include Supabase migration/seed instructions and Telegram webhook setup.",
+        "details": "Document environment variables, local dev setup, MCP registration for hosts, and simple demo steps for acceptance flows.",
+        "testStrategy": "Docs rendered and steps reproducible; reviewers can follow to run the app and try the three acceptance flows.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "low",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create .env.example and ASSUMPTIONS.md",
+            "description": "Create the .env.example file with all required environment variables and write the ASSUMPTIONS.md file to document key project decisions and defaults.",
+            "dependencies": [],
+            "details": "Create a file named `.env.example` in the project root. Add the following keys: `PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, and `TZ`. Create `ASSUMPTIONS.md` and document the technology choices (SvelteKit, Supabase, Telegram) and default settings like the timezone (`Asia/Jakarta`).",
+            "status": "pending",
+            "testStrategy": "Verify that `.env.example` and `ASSUMPTIONS.md` exist in the root directory and contain the specified content."
+          },
+          {
+            "id": 2,
+            "title": "Implement Makefile and runbook.md for common operations",
+            "description": "Create a `Makefile` with targets for common development and database tasks, and a `runbook.md` to document them.",
+            "dependencies": [],
+            "details": "Create a `Makefile` in the project root. Add targets for `install` (runs `npm install`), `dev` (runs `npm run dev`), `db-start` (runs `supabase start`), `db-reset` (runs `supabase db reset`), and `db-stop` (runs `supabase stop`). Create a `runbook.md` file explaining what each `make` target does and when to use it.",
+            "status": "pending",
+            "testStrategy": "Run each `make` target to ensure it executes the correct command. Review `runbook.md` for clarity and accuracy."
+          },
+          {
+            "id": 3,
+            "title": "Write initial README.md with project overview and local setup",
+            "description": "Create the main `README.md` file, covering the project's purpose, prerequisites, and step-by-step instructions for getting the local development environment running.",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "Create or overwrite `README.md`. Add sections for 'About The Project', 'Prerequisites' (Node.js, npm, Supabase CLI), and 'Getting Started'. The setup guide should instruct the user to clone the repo, run `make install`, copy `.env.example` to `.env`, and run `make dev`.",
+            "status": "pending",
+            "testStrategy": "A new developer should be able to follow the `README.md` instructions to get the project running locally (without full Supabase/Telegram functionality yet)."
+          },
+          {
+            "id": 4,
+            "title": "Enhance README.md with Supabase and Telegram integration guides",
+            "description": "Add detailed sections to `README.md` explaining how to set up and integrate the required external services: Supabase and Telegram.",
+            "dependencies": [
+              "10.3"
+            ],
+            "details": "In `README.md`, add a section for 'Service Integration'. Detail the steps to create a Supabase project, find the API URL and service role key, and populate the `.env` file. Explain how to run the database migrations using `make db-reset`. For Telegram, describe creating a bot via BotFather to get a token and setting the webhook URL for local development (e.g., using ngrok).",
+            "status": "pending",
+            "testStrategy": "Follow the new sections in the README to configure a new Supabase project and Telegram bot, ensuring all steps are correct and lead to a functional setup."
+          },
+          {
+            "id": 5,
+            "title": "Create and export a Postman collection for API endpoints",
+            "description": "Develop a Postman collection that covers the main API endpoints for CRUD operations and natural language processing, then export it as `POSTMAN.json`.",
+            "dependencies": [],
+            "details": "Create a Postman collection with requests for the server routes defined in Task 3 (hospitals, bangsal, patients, SOAP) and Task 5 (`/api/nl`). For `/api/nl`, include example bodies for `ask_diagnosis` and `add_medication` intents. Use Postman environment variables for the base URL. Export the collection to `POSTMAN.json` in the project root.",
+            "status": "pending",
+            "testStrategy": "Import `POSTMAN.json` into Postman and execute the requests against a running local server to verify they are correctly structured."
+          },
+          {
+            "id": 6,
+            "title": "Add a 'Demo Steps' guide to README.md",
+            "description": "Write a clear, step-by-step guide in the `README.md` to demonstrate the primary acceptance flows, such as MCP registration and using the NL API.",
+            "dependencies": [
+              "10.4",
+              "10.5"
+            ],
+            "details": "Add a 'Usage' or 'Demo' section to `README.md`. Provide concise, numbered steps for a reviewer to test the main features. Include: 1. How to register a new user (MCP/Host). 2. A `curl` or Postman example to query a patient's diagnosis. 3. A `curl` or Postman example to add a medication plan. Reference the Postman collection for ease of use.",
+            "status": "pending",
+            "testStrategy": "A reviewer follows the demo steps exactly as written. The steps should be reproducible and successfully demonstrate the application's core acceptance flows."
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-25T15:41:29.321Z",
+      "description": "Default tasks context",
+      "updated": "2025-08-25T15:42:33.149Z"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+# Task ID: 6
+# Title: Telegram webhook endpoint
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Implement /webhooks/telegram to receive updates, verify token/secret, and delegate to NL handler with disambiguation flow.
+# Details:
+Use telegraf or raw Bot API via undici. Normalize messages, support commands: diagnosis <name>, tambah obat ... N hari. Reuse NL orchestration and MCP tools. Document webhook setup steps.
+
+# Test Strategy:
+Local webhook simulation; unit tests for parser; manual test with Telegram bot after webhook configured.
+
+# Subtasks:
+## 1. Create Telegram Webhook Endpoint and Add Telegraf [pending]
+### Dependencies: None
+### Description: Create the basic SvelteKit server route at `/webhooks/telegram/+server.ts`. Install the `telegraf` library and set up a basic POST handler that receives updates from Telegram. Implement security by verifying a secret token passed in the request against a `TELEGRAM_SECRET_TOKEN` environment variable.
+### Details:
+In `src/routes/webhooks/telegram/+server.ts`, create a `POST` function. Add `telegraf` to `package.json`. Initialize a Telegraf bot instance. The handler should check for a `X-Telegram-Bot-Api-Secret-Token` header and compare it with `process.env.TELEGRAM_SECRET_TOKEN`. If valid, process the request with `bot.handleUpdate(request.body)`. If invalid, return a 403 Forbidden. Ensure `TELEGRAM_BOT_TOKEN` is also configured in the environment.
+
+## 2. Normalize Messages and Map to Intents [pending]
+### Dependencies: 6.1
+### Description: Integrate the natural language processing logic from `lib/nl.ts` into the webhook handler. For each incoming text message, normalize the Indonesian text (e.g., lowercase, trim whitespace) and use the NL module to parse it into a structured intent, such as `ask_diagnosis` or `add_medication`, along with extracted entities like patient name, medication details, and duration.
+### Details:
+Within the Telegraf message handler (`bot.on('message', ...)`), pass the message text to a function in `src/lib/nl.ts` (to be created if not present, as per Task 9). This function should use regular expressions or other logic to identify commands like `diagnosis <nama>` and `tambah obat <nama_obat> untuk <nama_pasien> selama <N> hari`. It should return an object like `{ intent: 'add_medication', entities: { patientName: '...', medicationName: '...', duration: ... } }` or `null` if no intent is matched.
+
+## 3. Implement Patient Disambiguation Flow [pending]
+### Dependencies: 6.2
+### Description: When an intent includes a patient name, search the database for matching patients. If exactly one patient is found, proceed. If multiple patients match the name, reply to the user asking for clarification, presenting the matching patients as an inline keyboard. Handle the subsequent `callback_query` to identify the correct patient for the original request.
+### Details:
+After parsing an intent, use a database function (e.g., `findPatientsByName(name)`) from `lib/server/db.ts`. If the result count is greater than 1, use `ctx.reply()` with `Markup.inlineKeyboard([...])` from Telegraf to send the options. The callback data for each button should contain a unique patient ID. Implement a `bot.on('callback_query', ...)` handler to capture the selection, retrieve the patient ID, and proceed with the original intent.
+
+## 4. Wire Intents to DB Actions and Format Responses [pending]
+### Dependencies: 6.3
+### Description: Connect the parsed intents for a confirmed patient to the corresponding backend logic. For `ask_diagnosis`, fetch the patient's latest SOAP record and format the 'Assessment' part into a human-friendly response. For `add_medication`, use the plan utilities to add the new medication to the patient's current plan. Send a confirmation or the requested information back to the user in clear Indonesian.
+### Details:
+Create an orchestrator function that takes the `intent` object and the confirmed `patientId`. Use a switch statement on `intent.intent`. For `ask_diagnosis`, call a DB function to get the latest SOAP and format a string like 'Diagnosis terakhir untuk [Nama Pasien] adalah [Assessment]'. For `add_medication`, call a function like `addMedicationToPlan(patientId, medicationDetails)` and respond with 'Obat [Nama Obat] berhasil ditambahkan untuk [Nama Pasien]'.
+
+## 5. Document Webhook Setup and Bot Commands in README [pending]
+### Dependencies: 6.4
+### Description: Update the `README.md` file with a new section for the Telegram Bot. This section should detail the step-by-step process for setting up the webhook and provide a clear list of supported commands and their syntax.
+### Details:
+In `README.md`, add a 'Telegram Bot Integration' section. Explain how to: 1. Create a bot with BotFather to get a token. 2. Set the `TELEGRAM_BOT_TOKEN` and `TELEGRAM_SECRET_TOKEN` environment variables. 3. Use the Telegram Bot API (e.g., via a `curl` command) to set the webhook URL to `https://<your-app-url>/webhooks/telegram`, including the secret token. 4. List the available commands, e.g., `diagnosis <nama pasien>` and `tambah obat <nama obat> untuk <nama pasien> selama <jumlah> hari`.
+

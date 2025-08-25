@@ -1,0 +1,49 @@
+# Task ID: 5
+# Title: NL orchestration API: /api/nl
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Implement /api/nl that maps intents to MCP calls: ask_diagnosis(name) and add_medication(name, item).
+# Details:
+Create intent detector and normalizer in lib/nl.ts. For ask_diagnosis, search, disambiguate if multiple, then getLatest(select:["a"]). For add_medication, parse plan item, append, recompute statuses, and return split active/done view. Default tz Asia/Jakarta.
+
+# Test Strategy:
+Unit tests for intent parsing; integration tests calling MCP mock; manual tests with Indonesian examples from brief.
+
+# Subtasks:
+## 1. Implement Medication Plan Parsing Utilities in lib/plan.ts [pending]
+### Dependencies: None
+### Description: Create and implement the plan parsing utility module at `src/lib/plan.ts`. This module will be responsible for converting natural language medication instructions into a structured object.
+### Details:
+Implement a function that parses a string like 'paracetamol 500mg oral 3x1 selama 5 hari' into a structured object: `{ drug: string, route: string, dose: string, freq: string, days: number, start_date?: Date }`. Implement logic to calculate the `end_date` based on `start_date` and `days`. All date calculations must use the 'Asia/Jakarta' timezone as the default. Also, define and implement status computation rules (e.g., 'active', 'done') based on the current date relative to the plan item's start and end dates.
+
+## 2. Implement Intent Detection and Normalization in lib/nl.ts [pending]
+### Dependencies: None
+### Description: Create the intent detection module at `src/lib/nl.ts`. This module will analyze an input string to determine the user's intent and extract relevant parameters.
+### Details:
+Implement a primary function, `detectIntent(query: string)`, that uses regular expressions and keyword matching to identify one of two intents: `ask_diagnosis` or `add_medication`. For `ask_diagnosis`, it should extract the patient's name (e.g., from 'diagnosis Bintang'). For `add_medication`, it should extract the patient's name and the full medication item string (e.g., from 'tambah obat Bintang: paracetamol...'). The function should return a structured object like `{ intent: 'ask_diagnosis', params: { name: 'Bintang' } }` or an error/unknown state.
+
+## 3. Create /api/nl Endpoint and Define Response Contracts [pending]
+### Dependencies: None
+### Description: Set up the SvelteKit server route at `src/routes/api/nl/+server.ts` and define the Zod schemas for its request and response structures.
+### Details:
+Create the file `src/routes/api/nl/+server.ts` to handle POST requests. In `src/lib/types.ts` (or a new dedicated file), define Zod schemas for the API. This includes the input schema `{ query: z.string() }` and the possible output schemas: a success response, an error response, and a specific disambiguation prompt schema for when multiple patients are found. The initial implementation of the endpoint should validate the input and return a placeholder response.
+
+## 4. Implement `ask_diagnosis` Orchestration Flow [pending]
+### Dependencies: 5.2, 5.3
+### Description: Implement the complete server-side logic for handling the `ask_diagnosis` intent within the `/api/nl` endpoint.
+### Details:
+In `src/routes/api/nl/+server.ts`, after calling `detectIntent`, check if the intent is `ask_diagnosis`. If so, use the extracted patient name to call the `patient.searchByName` MCP tool. If the tool returns multiple patients, format and send a disambiguation prompt response using the predefined schema. If one patient is found, proceed to call the `soap.getLatest` MCP tool with the patient's ID and the option `select: ['a']`. Format the resulting assessment data into the success response schema and return it.
+
+## 5. Implement `add_medication` Orchestration Flow [pending]
+### Dependencies: 5.1, 5.2, 5.3
+### Description: Implement the complete server-side logic for handling the `add_medication` intent within the `/api/nl` endpoint.
+### Details:
+In `src/routes/api/nl/+server.ts`, handle the `add_medication` intent. First, use the plan parser from `lib/plan.ts` to convert the medication string into a structured object. Then, call the `soap.appendPlanItem` MCP tool with the patient's ID and the structured plan item. After that, call the `soap.recomputePlanStatuses` MCP tool for that patient. Finally, retrieve the updated plan, split it into 'active' and 'done' lists, and return this structured view in the API response.
+
+## 6. Implement Logging and Finalize Unit Tests [pending]
+### Dependencies: 5.4, 5.5
+### Description: Add structured logging to the API endpoint for observability and ensure the unit tests for the utility modules are comprehensive.
+### Details:
+Enhance `src/routes/api/nl/+server.ts` by adding logging statements (e.g., using `console.log` with structured prefixes like `[API:/api/nl]`). Log key events: incoming request body, detected intent, MCP tool calls being made, and any errors encountered. Review and expand the unit tests in `src/lib/plan.test.ts` and `src/lib/nl.test.ts` to cover edge cases and ensure the core parsing and detection logic is robust.
+

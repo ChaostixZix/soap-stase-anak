@@ -1,0 +1,53 @@
+# Task ID: 2
+# Title: Database migrations and RLS
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Create SQL migrations 01_schema.sql, 02_rls.sql, 03_seed.sql per brief, with pg_trgm, tables, indexes, RLS policies, and seed data.
+# Details:
+Implement schema for app_user, hospital, bangsal, patient, soap with indexes. Enable RLS and create policies as specified. Add seed entries for hospitals, bangsal, and patients (Bintang, Bintang Putra, Nisa).
+
+# Test Strategy:
+Run migrations locally; verify RLS by querying as different users; confirm seed rows appear for the owner.
+
+# Subtasks:
+## 1. Create 01_schema.sql with Tables, Extension, and Indexes [pending]
+### Dependencies: None
+### Description: Create the initial database schema file. This includes enabling the `pg_trgm` extension for fuzzy string matching and defining all required tables: `app_user`, `hospital`, `bangsal`, `patient`, and `soap`. Define all columns, data types, foreign key relationships, and indexes as specified in the brief.
+### Details:
+Create a new directory `supabase/migrations`. Inside, create a file named `20230101000001_schema.sql`. Add `CREATE EXTENSION IF NOT EXISTS pg_trgm;` at the top. Define the `app_user` table to store user profiles linked to `auth.users`. Define `hospital` and `bangsal` tables with an `owner_id` referencing `app_user`. Define the `patient` table with a `searchable_name` column and a GIN index using `pg_trgm`. Define the `soap` table linked to `patient`. Ensure all foreign keys have `ON DELETE CASCADE` where appropriate.
+
+## 2. Create 02_rls.sql with Row-Level Security Policies [pending]
+### Dependencies: 2.1
+### Description: Create the second migration file to enable and configure Row-Level Security (RLS) for all tables. This ensures that users can only access and modify data they own.
+### Details:
+Create a new migration file `20230101000002_rls.sql`. For each table (`app_user`, `hospital`, `bangsal`, `patient`, `soap`), first execute `ALTER TABLE ... ENABLE ROW LEVEL SECURITY;`. Then, create policies for `SELECT`, `INSERT`, `UPDATE`, and `DELETE`. Policies should generally check that `auth.uid() = owner_id`. For the `app_user` table, users should only be able to see and update their own record. For other tables, access should be restricted based on the `owner_id` column.
+
+## 3. Create 03_seed.sql with Initial Application Data [pending]
+### Dependencies: 2.1
+### Description: Create a third migration file to seed the database with initial data for development and testing purposes. This includes default hospitals, wards (bangsal), and example patients.
+### Details:
+Create a new migration file `20230101000003_seed.sql`. Add `INSERT` statements to populate the `hospital` and `bangsal` tables. Create a placeholder user to act as the owner of the seed data. Then, insert the specified patient records ('Bintang', 'Bintang Putra', 'Nisa'), ensuring they are linked to the placeholder owner's `user_id` and a seed hospital/bangsal.
+
+## 4. Add Makefile Targets for Database Management [pending]
+### Dependencies: 2.1, 2.2, 2.3
+### Description: Update the project's `Makefile` to include convenient targets for managing the local Supabase database, such as applying migrations and resetting the database.
+### Details:
+Edit the `Makefile` in the project root. Add the following targets:
+- `db-start`: Executes `supabase start`.
+- `db-stop`: Executes `supabase stop`.
+- `db-reset`: Executes `supabase db reset` to wipe the local DB and re-apply all migrations from the `supabase/migrations` folder.
+- `db-push`: Executes `supabase db push` to apply new, unapplied migrations (useful for development).
+
+## 5. Document Database Migration Steps in README.md [pending]
+### Dependencies: 2.4
+### Description: Update the main `README.md` file with a new section that explains how to set up the local database environment and run migrations using the newly created Makefile targets.
+### Details:
+Add a 'Database Setup' section to `README.md`. Document the prerequisites, such as installing the Supabase CLI. Provide clear, step-by-step instructions on how to initialize the project with Supabase (`supabase init`), link it to a remote project if necessary, and use the `make db-reset` command to set up the local database schema and seed data.
+
+## 6. Sanity-Check Indexes, Extensions, and RLS Policies [pending]
+### Dependencies: 2.4
+### Description: Perform a final verification to ensure all database components are correctly implemented and functional after a full migration run.
+### Details:
+After running `make db-reset`, connect to the local PostgreSQL instance. Run `\dx` to confirm the `pg_trgm` extension is installed. For the `patient` table, run `\d patient` to verify the GIN index on `searchable_name` exists. Execute a query with `EXPLAIN` using a `LIKE` or `ILIKE` clause on `searchable_name` to ensure the index is being used. Finally, execute queries as an anonymous role (`SET ROLE authenticated`) to confirm RLS policies block access as expected.
+

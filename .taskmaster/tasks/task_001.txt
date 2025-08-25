@@ -1,0 +1,51 @@
+# Task ID: 1
+# Title: Scaffold SvelteKit app with Tailwind and Supabase Auth
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Bootstrap SvelteKit + Tailwind + Supabase client and email link auth. Add Makefile and scripts/dev.sh.
+# Details:
+Initialize SvelteKit project with TypeScript, Tailwind CSS, and Supabase JS client. Configure auth with magic link/email login, environment variables, and a basic layout with navbar. Add minimal Makefile and scripts/dev.sh to run the dev server.
+
+# Test Strategy:
+Manual verification: sign-in flow with magic link, environment vars loaded, app boots and renders navbar.
+
+# Subtasks:
+## 1. Initialize SvelteKit Project with TypeScript [pending]
+### Dependencies: None
+### Description: Bootstrap a new SvelteKit project using the skeleton template. Configure it with TypeScript, ESLint, and Prettier to establish a baseline for the application.
+### Details:
+Run `npm create svelte@latest .` in the project root. Select 'Skeleton project', 'Yes, using TypeScript syntax', and add ESLint and Prettier. After creation, run `npm install` to fetch the dependencies. This will create the initial `src`, `package.json`, and `svelte.config.js` files.
+
+## 2. Integrate and Configure Tailwind CSS [pending]
+### Dependencies: None
+### Description: Add Tailwind CSS to the project for styling. This includes setting up PostCSS, the Tailwind configuration file, and a base stylesheet with the required directives.
+### Details:
+Use the official Svelte-add utility: `npx svelte-add@latest tailwindcss`. This will create `tailwind.config.cjs` and `postcss.config.cjs`. Create `src/app.css` and add the core directives: `@tailwind base; @tailwind components; @tailwind utilities;`. Import this stylesheet in the root layout `src/routes/+layout.svelte`.
+
+## 3. Install and Configure Supabase JS Client [pending]
+### Dependencies: None
+### Description: Install the Supabase client library and set up the necessary environment variables. Create a centralized helper module to initialize and export the Supabase client instance for use throughout the app.
+### Details:
+Run `npm install @supabase/supabase-js`. Create a `.env` file and populate it with `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY` from your Supabase project. Create a corresponding `.env.example` file. Create a new file `src/lib/supabaseClient.ts` that imports `$env/static/public`, initializes the client using the environment variables, and exports the client instance.
+
+## 4. Implement Magic Link Authentication UI and Logic [pending]
+### Dependencies: None
+### Description: Create the user-facing components and logic for signing in via a magic link (email OTP) and signing out. This involves creating a login page and handling the Supabase auth functions.
+### Details:
+Create a new route `src/routes/login/+page.svelte`. Add a form with an email input and a button. On form submission, call the `supabase.auth.signInWithOtp` function with the user's email. Create a server-side form action for signing out by calling `supabase.auth.signOut` and redirecting.
+
+## 5. Create App Layout with Session Handling and Protected Routes [pending]
+### Dependencies: None
+### Description: Develop the main application layout to be session-aware. It should display different content (e.g., user email vs. login link) based on auth state. Implement route protection to redirect unauthenticated users.
+### Details:
+Create a `src/routes/+layout.server.ts` to fetch the user's session from Supabase. Pass the session data to the page. In `src/routes/+layout.svelte`, use an `{#if data.session}` block to conditionally render a navbar with the user's email and a logout button, or a login link if no session exists. In the server layout load function, check for a session and redirect to `/login` if the user tries to access a protected route without one.
+
+## 6. Add Makefile and `scripts/dev.sh` for Development [pending]
+### Dependencies: None
+### Description: Create a `Makefile` and a helper shell script to standardize the process of starting the development server, as specified in the task requirements.
+### Details:
+Create a directory named `scripts`. Inside it, create a file `dev.sh` containing `#!/bin/sh
+npm run dev`. Make the script executable using `chmod +x scripts/dev.sh`. Create a `Makefile` in the project root with a `dev` target: `dev:
+	@./scripts/dev.sh`. This provides a simple `make dev` command to run the project.
+

@@ -1,0 +1,43 @@
+# Task ID: 9
+# Title: Tests: plan utilities and NL flows
+# Status: pending
+# Dependencies: None
+# Priority: low
+# Description: Add minimal tests for plan recompute/append utilities and NL intent parsing.
+# Details:
+Implement lib/plan.ts to compute end_date and statuses. Test append + recompute scenarios and Indonesian examples mapping to intents.
+
+# Test Strategy:
+Automated unit tests for lib/plan and lib/nl; run in CI/local.
+
+# Subtasks:
+## 1. Configure Test Runner and Add `npm test` Script [pending]
+### Dependencies: None
+### Description: Set up the testing environment by installing and configuring Vitest. Add an `npm test` script to `package.json` for easy local execution and future CI integration.
+### Details:
+Install `vitest`, `@vitest/ui`, and `c8` as dev dependencies. Create a `vitest.config.ts` file in the project root to configure test paths to include `**/*.test.ts?(x)`. Add the following scripts to `package.json`: `"test": "vitest"`, `"test:ui": "vitest --ui"`, and `"coverage": "vitest run --coverage"`. This initial setup is required before any tests can be written or run.
+
+## 2. Create Unit Tests for Plan Utilities in `lib/plan.ts` [pending]
+### Dependencies: 9.1
+### Description: Implement unit tests for the plan computation logic in `lib/plan.ts`. Focus on verifying the correctness of `end_date` calculations and status updates (`active`/`done`) based on the current date in the `Asia/Jakarta` timezone.
+### Details:
+Create a `lib/plan.test.ts` file. Use `vitest`'s `describe`, `it`, and `expect` functions. Test scenarios should include: calculating `end_date` for plans specified in days, and computing statuses for items that are active, expired (done), or in the future. Use `vi.useFakeTimers()` to control `Date.now()` for predictable results when testing status computations against the `Asia/Jakarta` timezone.
+
+## 3. Create Unit Tests for NL Intent Parsing in `lib/nl.ts` [pending]
+### Dependencies: 9.1
+### Description: Add unit tests for the natural language intent parser in `lib/nl.ts`. Ensure that various Indonesian phrases correctly map to the `ask_diagnosis` and `add_medication` intents and that their parameters are extracted accurately.
+### Details:
+Create a `lib/nl.test.ts` file. Test cases should cover Indonesian examples. For `ask_diagnosis`, test 'diagnosis [name]'. For `add_medication`, test 'tambah obat [name] [duration] hari', ensuring medication name and duration are correctly parsed. Include tests for inputs that should result in an 'unknown' intent to handle edge cases.
+
+## 4. Implement Test Data Factories and Helpers [pending]
+### Dependencies: None
+### Description: Create a set of helper functions or factories to generate consistent test data, such as `Patient`, `Soap`, and `PlanItem` objects. This will simplify writing the upcoming integration tests and improve their readability.
+### Details:
+Create a new file, `tests/factories.ts`. Implement functions like `createTestPatient()`, `createTestSoap()`, and `createTestPlanItem(overrides)`. These factories should return objects conforming to the project's data structures (e.g., Zod schemas or database types), with sensible defaults that can be overridden for specific test cases.
+
+## 5. Implement Integration Test for the `/api/nl` Endpoint [pending]
+### Dependencies: 9.1, 9.3, 9.4
+### Description: Create a minimal integration test for the `/api/nl` endpoint. This test will verify the end-to-end flow from receiving a natural language query to invoking the correct, but mocked, MCP tool.
+### Details:
+Create an `app/api/nl/nl.test.ts` file. Use Vitest's mocking capabilities (`vi.mock`) to mock the MCP client module (e.g., `lib/mcp.ts`). Use the test data factories from `tests/factories.ts` to construct mock return values for the MCP tools. Test two main flows: 1) An 'add_medication' query triggers the mocked `soap.appendPlanItem` and `soap.recomputePlanStatuses`. 2) An 'ask_diagnosis' query triggers the mocked `patient.searchByName` and `soap.getLatest`. Assert that the correct mocks were called with the expected parameters.
+
