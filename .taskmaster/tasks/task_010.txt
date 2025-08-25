@@ -1,0 +1,49 @@
+# Task ID: 10
+# Title: Docs and ops: README, ASSUMPTIONS, env, runbook
+# Status: pending
+# Dependencies: None
+# Priority: low
+# Description: Write README.md, ASSUMPTIONS.md, .env.example, runbook, and POSTMAN.json; include Supabase migration/seed instructions and Telegram webhook setup.
+# Details:
+Document environment variables, local dev setup, MCP registration for hosts, and simple demo steps for acceptance flows.
+
+# Test Strategy:
+Docs rendered and steps reproducible; reviewers can follow to run the app and try the three acceptance flows.
+
+# Subtasks:
+## 1. Create .env.example and ASSUMPTIONS.md [pending]
+### Dependencies: None
+### Description: Create the .env.example file with all required environment variables and write the ASSUMPTIONS.md file to document key project decisions and defaults.
+### Details:
+Create a file named `.env.example` in the project root. Add the following keys: `PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, and `TZ`. Create `ASSUMPTIONS.md` and document the technology choices (SvelteKit, Supabase, Telegram) and default settings like the timezone (`Asia/Jakarta`).
+
+## 2. Implement Makefile and runbook.md for common operations [pending]
+### Dependencies: None
+### Description: Create a `Makefile` with targets for common development and database tasks, and a `runbook.md` to document them.
+### Details:
+Create a `Makefile` in the project root. Add targets for `install` (runs `npm install`), `dev` (runs `npm run dev`), `db-start` (runs `supabase start`), `db-reset` (runs `supabase db reset`), and `db-stop` (runs `supabase stop`). Create a `runbook.md` file explaining what each `make` target does and when to use it.
+
+## 3. Write initial README.md with project overview and local setup [pending]
+### Dependencies: 10.1, 10.2
+### Description: Create the main `README.md` file, covering the project's purpose, prerequisites, and step-by-step instructions for getting the local development environment running.
+### Details:
+Create or overwrite `README.md`. Add sections for 'About The Project', 'Prerequisites' (Node.js, npm, Supabase CLI), and 'Getting Started'. The setup guide should instruct the user to clone the repo, run `make install`, copy `.env.example` to `.env`, and run `make dev`.
+
+## 4. Enhance README.md with Supabase and Telegram integration guides [pending]
+### Dependencies: 10.3
+### Description: Add detailed sections to `README.md` explaining how to set up and integrate the required external services: Supabase and Telegram.
+### Details:
+In `README.md`, add a section for 'Service Integration'. Detail the steps to create a Supabase project, find the API URL and service role key, and populate the `.env` file. Explain how to run the database migrations using `make db-reset`. For Telegram, describe creating a bot via BotFather to get a token and setting the webhook URL for local development (e.g., using ngrok).
+
+## 5. Create and export a Postman collection for API endpoints [pending]
+### Dependencies: None
+### Description: Develop a Postman collection that covers the main API endpoints for CRUD operations and natural language processing, then export it as `POSTMAN.json`.
+### Details:
+Create a Postman collection with requests for the server routes defined in Task 3 (hospitals, bangsal, patients, SOAP) and Task 5 (`/api/nl`). For `/api/nl`, include example bodies for `ask_diagnosis` and `add_medication` intents. Use Postman environment variables for the base URL. Export the collection to `POSTMAN.json` in the project root.
+
+## 6. Add a 'Demo Steps' guide to README.md [pending]
+### Dependencies: 10.4, 10.5
+### Description: Write a clear, step-by-step guide in the `README.md` to demonstrate the primary acceptance flows, such as MCP registration and using the NL API.
+### Details:
+Add a 'Usage' or 'Demo' section to `README.md`. Provide concise, numbered steps for a reviewer to test the main features. Include: 1. How to register a new user (MCP/Host). 2. A `curl` or Postman example to query a patient's diagnosis. 3. A `curl` or Postman example to add a medication plan. Reference the Postman collection for ease of use.
+

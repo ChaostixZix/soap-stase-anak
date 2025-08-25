@@ -1,0 +1,93 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-25T16:13:32.109Z",
+		"tasksAnalyzed": 10,
+		"totalTasks": 10,
+		"analysisCount": 10,
+		"thresholdScore": 5,
+		"projectName": "Taskmaster",
+		"usedResearch": true
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Scaffold SvelteKit app with Tailwind and Supabase Auth",
+			"complexityScore": 3,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to specify the use of a UI component library like `shadcn-svelte` for the login form and navbar to ensure consistency. Detail the exact environment variables needed in `.env.example` (e.g., `PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`). Refine the layout subtask to explicitly mention creating a reusable `Header` component that handles session-aware rendering.",
+			"reasoning": "This is a foundational setup task involving the integration of three well-known technologies following standard, well-documented procedures. The steps are sequential and low-risk, making it more of a checklist execution than complex problem-solving. The existing 6 subtasks are perfectly granular."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Database migrations and RLS",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to detail the specific RLS policies for each table (e.g., 'users can only select/update their own app_user record', 'users can manage patients only if they own the associated hospital'). Specify the GIN index creation using `pg_trgm` on the `patient.searchable_name` column. Add a subtask for creating database functions to handle common RLS checks to reduce policy duplication.",
+			"reasoning": "This task requires specific knowledge of PostgreSQL, including extensions (`pg_trgm`), indexing strategies (GIN), and complex Row-Level Security (RLS) policies. Misconfigurations can lead to major security vulnerabilities or performance bottlenecks, elevating the complexity beyond simple setup. The 6 subtasks correctly break down schema, RLS, seeding, and tooling."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Server routes: hospitals, bangsal, patients, SOAP CRUD",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to define the specific API routes and HTTP methods for each CRUD operation (e.g., `GET /api/hospitals`, `POST /api/hospitals`, `GET /api/hospitals/[id]`, etc.). For the patient search, specify the use of URL query parameters for filtering. Detail the structure of the centralized error handling utility, including how it maps PostgREST errors to HTTP 4xx/5xx responses.",
+			"reasoning": "The task involves creating a significant number of API endpoints (approx. 12-15 for full CRUD on 4 entities) with business logic. It requires robust input validation (Zod), careful handling of database relationships, and mapping database errors (like RLS violations) to appropriate HTTP status codes, which is non-trivial. The 6 subtasks provide a good, entity-based breakdown."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "MCP server: soap-tools.mjs",
+			"complexityScore": 8,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to detail the Zod schemas for both the input and output of each of the four tools, ensuring no sensitive data is exposed. For `soap.appendPlanItem`, specify the use of `date-fns-tz` for timezone-aware date calculations. Clarify the `package.json` `bin` entry and provide an example of how a host application would register this tool in its configuration.",
+			"reasoning": "This task's complexity comes from implementing a specific, non-standard protocol (MCP over stdio) which requires understanding a niche SDK. It also involves creating a separate, privileged execution context (using a service role key) that must be carefully secured. The date/timezone logic for plan items is notoriously error-prone. The 6 subtasks correctly isolate these concerns."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "NL orchestration API: /api/nl",
+			"complexityScore": 9,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to provide more examples of the Indonesian phrases to be parsed for each intent. Detail the exact JSON structure for the disambiguation response. For the `add_medication` flow, create a flowchart or sequence diagram in the subtask details to clarify the order of MCP tool calls and data transformations.",
+			"reasoning": "This task is highly complex due to its role as an orchestrator. It involves multiple sequential, conditional steps: NLP parsing, calling an external tool (`patient.searchByName`), handling a stateful side-effect (disambiguation), calling more tools (`soap.appendPlanItem`, `soap.recomputePlanStatuses`), and transforming the final data. This chain of dependent operations is inherently fragile and difficult to test."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Telegram webhook endpoint",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to break down the disambiguation flow. Create one subtask for 'Send Disambiguation Prompt with Inline Keyboard' and another for 'Handle `callback_query` to Resolve Disambiguation'. Specify the format of the `callback_data` string to encode the necessary context (e.g., `intent:action:patientId`). Add a subtask for error handling, like when the NL parser fails to understand a message.",
+			"reasoning": "The complexity lies in integrating with a third-party API (Telegram) and managing a stateful, asynchronous conversation flow for patient disambiguation. This requires handling initial messages, sending interactive replies (inline keyboards), and then processing callbacks, all while maintaining the context of the original user request. This is more complex than a simple request-response API."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "UI: Hospital/Bangsal managers and Patient list",
+			"complexityScore": 6,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to specify the use of SvelteKit's `enhance` for progressive enhancement on all forms. Detail how URL search parameters will be used to manage the state of the dashboard filters and search query, allowing for shareable links. Specify the `shadcn-svelte` components to be used for tables, dialogs, selects, and inputs.",
+			"reasoning": "This task involves building multiple interconnected UI views with significant state management (e.g., chained filters for hospital -> bangsal, search queries). Implementing robust, user-friendly forms with validation, and handling loading, error, and empty states for all data-driven components requires significant effort and attention to detail. The 6 subtasks correctly partition this work."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "UI: Patient profile and SOAP screen",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to detail the optimistic update logic for the S/O/A form, including how to handle API errors and revert the UI using `svelte-sonner` for toasts. For the Plan Viewer, specify the exact date format. For the NL Command Box integration, describe how the patient's ID will be passed as context to the component when used on the patient page.",
+			"reasoning": "The complexity here is higher than standard CRUD UI due to features like optimistic updates for the SOAP form, the business logic required on the frontend to split the 'Plan' into active/done lists, and the integration of the asynchronous, interactive NL command box. Correctly handling date-timezones (`date-fns-tz`) on the client-side adds another layer of detail."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Tests: plan utilities and NL flows",
+			"complexityScore": 4,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand the subtasks to include specific edge cases to be tested. For `plan.test.ts`, add tests for leap years and plans that cross month/year boundaries. For `nl.test.ts`, add tests for common misspellings or alternative phrasings. For the integration test, detail the structure of the mocked MCP client (`vi.mock`) and the expected return values.",
+			"reasoning": "While writing tests is crucial, this task is scoped to be 'minimal' and focuses on unit-testing pure logic functions (`plan.ts`, `nl.ts`), which is relatively straightforward. The complexity is moderate because it requires setting up a test environment and mocking dependencies for the integration test, but it's less complex than building the features themselves."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Docs and ops: README, ASSUMPTIONS, env, runbook",
+			"complexityScore": 5,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Expand the subtasks to create a template for the `README.md` with all the required sections (About, Prerequisites, Setup, Service Integration, Usage, API). For the Postman collection, specify that it should use environment variables for `baseUrl` and `authToken`. For the `runbook.md`, add a section on 'Troubleshooting Common Issues', like RLS errors or Telegram webhook failures.",
+			"reasoning": "High-quality documentation is challenging to produce. It requires a complete, system-wide understanding of all components, from local setup and database migrations to third-party service configuration and API usage. Ensuring the steps are reproducible and clear for a new developer is a non-trivial effort that requires significant time and diligence."
+		}
+	]
+}

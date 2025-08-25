@@ -1,0 +1,49 @@
+# Task ID: 4
+# Title: MCP server: soap-tools.mjs
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Implement MCP server over stdio with tools: patient.searchByName, soap.getLatest, soap.appendPlanItem, soap.recomputePlanStatuses.
+# Details:
+Use @modelcontextprotocol/sdk and zod. Secure with service-role key on server side only. Expose safe fields only and structured inputs/outputs. Provide npm bin entry and README instructions for registration in hosts.
+
+# Test Strategy:
+Local invocation in headless mode; Zod validates inputs; verify tool outputs with mock Supabase project and service role.
+
+# Subtasks:
+## 1. Scaffold MCP Server and Initialize Supabase Client [pending]
+### Dependencies: None
+### Description: Create the `mcp/` directory and the `mcp/soap-tools.mjs` file. Install the `@modelcontextprotocol/sdk` and `dotenv` dependencies. Set up the basic MCP server structure using `ModelContextServer` and `StdioServerTransport`. Initialize a privileged Supabase client for server-to-server communication.
+### Details:
+In `mcp/soap-tools.mjs`, add a shebang `#!/usr/bin/env node`. Use `dotenv` to load `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from a `.env` file. Create a Supabase client instance using the service role key, which is necessary to bypass Row Level Security for these administrative tasks. This client will be used by all tools.
+
+## 2. Define Zod Schemas for Tool Inputs and Outputs [pending]
+### Dependencies: 4.1
+### Description: Define and export all necessary Zod schemas for the inputs and outputs of the four required tools: `patient.searchByName`, `soap.getLatest`, `soap.appendPlanItem`, and `soap.recomputePlanStatuses`.
+### Details:
+Create these schemas within `mcp/soap-tools.mjs` or a separate `mcp/types.mjs`. The output schemas must only expose safe fields. For `patient.searchByName`, the output schema should include `id`, `name`, `hospital` (name), `bangsal` (name), and `room`. For `soap.getLatest`, the input should take `patientId` and an optional `select` array of strings. For `soap.appendPlanItem`, the input should include `patientId`, `item` (string), and `days` (number).
+
+## 3. Implement `patient.searchByName` Tool [pending]
+### Dependencies: 4.1, 4.2
+### Description: Implement and register the `patient.searchByName` tool. This tool will perform a case-insensitive, fuzzy search for patients and return a limited list of results.
+### Details:
+Use the privileged Supabase client to query the `patients` table. The query should use `.ilike('name', `%${query}%`)` for the search. Join with the `hospitals` and `bangsal` tables to retrieve their respective names. Limit the results to 5. The function should be registered with the MCP server instance with its corresponding input and output Zod schemas.
+
+## 4. Implement `soap.getLatest` Tool [pending]
+### Dependencies: 4.1, 4.2
+### Description: Implement and register the `soap.getLatest` tool. This tool will retrieve the most recent SOAP record for a specified patient, with an option to select specific fields.
+### Details:
+The tool will take a `patientId` and an optional `select` array (e.g., `['a', 'p', 'summary']`). Query the `soap` table, filtering by `patient_id`, ordering by `created_at` descending, and limiting to 1. If the `select` parameter is provided and not empty, filter the resulting SOAP object to return only the requested keys. Otherwise, return a default set of fields like `id`, `created_at`, and `summary`. Register the tool with the MCP server.
+
+## 5. Implement `soap.appendPlanItem` Tool [pending]
+### Dependencies: 4.1, 4.2
+### Description: Implement and register the `soap.appendPlanItem` tool. This tool will add a new item to the `plan` array of a patient's latest SOAP record.
+### Details:
+The tool requires `patientId`, `item` text, and `days`. First, fetch the latest SOAP record for the patient. The new plan item's `start_date` should default to the current date in 'Asia/Jakarta' timezone. Calculate the `end_date` as `start_date + days - 1`. Use `date-fns-tz` for timezone-aware date calculations. Append the new plan item object to the existing `plan` JSONB array and update the SOAP record in the database. Register the tool.
+
+## 6. Implement `soap.recomputePlanStatuses` and Finalize Packaging [pending]
+### Dependencies: 4.1, 4.2
+### Description: Implement the `soap.recomputePlanStatuses` tool and prepare the package for use by host applications by updating `package.json` and the `README.md`.
+### Details:
+For the tool, fetch the latest SOAP for the given `patientId`. Iterate through its `plan` array. Compare each item's `end_date` with the current date ('Asia/Jakarta' timezone). Set the item's `status` to 'done' if the `end_date` is in the past, otherwise set it to 'active'. Update the entire SOAP record with the modified `plan` array. For packaging, add a `bin` entry to `package.json` (e.g., `"soap-tools": "mcp/soap-tools.mjs"`). Add a section to `README.md` explaining how to install the package and register the `soap-tools` command in an MCP host.
+
