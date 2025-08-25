@@ -17,7 +17,7 @@
             "description": "Bootstrap a new SvelteKit project using the skeleton template. Configure it with TypeScript, ESLint, and Prettier to establish a baseline for the application.",
             "dependencies": [],
             "details": "Run `npm create svelte@latest .` in the project root. Select 'Skeleton project', 'Yes, using TypeScript syntax', and add ESLint and Prettier. After creation, run `npm install` to fetch the dependencies. This will create the initial `src`, `package.json`, and `svelte.config.js` files.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that `npm run dev` starts the server and a blank page is visible. Check that `package.json` and `svelte.config.js` are present."
           },
           {
@@ -26,7 +26,7 @@
             "description": "Add Tailwind CSS to the project for styling. This includes setting up PostCSS, the Tailwind configuration file, and a base stylesheet with the required directives.",
             "dependencies": [],
             "details": "Use the official Svelte-add utility: `npx svelte-add@latest tailwindcss`. This will create `tailwind.config.cjs` and `postcss.config.cjs`. Create `src/app.css` and add the core directives: `@tailwind base; @tailwind components; @tailwind utilities;`. Import this stylesheet in the root layout `src/routes/+layout.svelte`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Apply a Tailwind class (e.g., `bg-gray-800`, `text-white`) to the body in `+layout.svelte` and confirm the style is applied in the browser."
           },
           {
@@ -35,7 +35,7 @@
             "description": "Install the Supabase client library and set up the necessary environment variables. Create a centralized helper module to initialize and export the Supabase client instance for use throughout the app.",
             "dependencies": [],
             "details": "Run `npm install @supabase/supabase-js`. Create a `.env` file and populate it with `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_ANON_KEY` from your Supabase project. Create a corresponding `.env.example` file. Create a new file `src/lib/supabaseClient.ts` that imports `$env/static/public`, initializes the client using the environment variables, and exports the client instance.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "In a temporary Svelte component, import the client and attempt a simple query (e.g., `supabase.from('some_table').select('*')`). Check the browser console for connection errors."
           },
           {
@@ -44,7 +44,7 @@
             "description": "Create the user-facing components and logic for signing in via a magic link (email OTP) and signing out. This involves creating a login page and handling the Supabase auth functions.",
             "dependencies": [],
             "details": "Create a new route `src/routes/login/+page.svelte`. Add a form with an email input and a button. On form submission, call the `supabase.auth.signInWithOtp` function with the user's email. Create a server-side form action for signing out by calling `supabase.auth.signOut` and redirecting.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Navigate to `/login`, enter an email, and click the sign-in button. Verify that you receive the magic link email. Clicking the link should authenticate the session. Test the sign-out functionality."
           },
           {
@@ -53,7 +53,7 @@
             "description": "Develop the main application layout to be session-aware. It should display different content (e.g., user email vs. login link) based on auth state. Implement route protection to redirect unauthenticated users.",
             "dependencies": [],
             "details": "Create a `src/routes/+layout.server.ts` to fetch the user's session from Supabase. Pass the session data to the page. In `src/routes/+layout.svelte`, use an `{#if data.session}` block to conditionally render a navbar with the user's email and a logout button, or a login link if no session exists. In the server layout load function, check for a session and redirect to `/login` if the user tries to access a protected route without one.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "When logged out, the navbar should show 'Login'. When logged in, it should show user info and 'Logout'. Attempting to access a protected page (e.g., `/dashboard`) while logged out should redirect to `/login`."
           },
           {
@@ -62,7 +62,7 @@
             "description": "Create a `Makefile` and a helper shell script to standardize the process of starting the development server, as specified in the task requirements.",
             "dependencies": [],
             "details": "Create a directory named `scripts`. Inside it, create a file `dev.sh` containing `#!/bin/sh\nnpm run dev`. Make the script executable using `chmod +x scripts/dev.sh`. Create a `Makefile` in the project root with a `dev` target: `dev:\n\t@./scripts/dev.sh`. This provides a simple `make dev` command to run the project.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Run `make dev` from the terminal. The command should successfully start the SvelteKit development server."
           }
         ]
@@ -743,7 +743,7 @@
     "metadata": {
       "created": "2025-08-25T15:41:29.321Z",
       "description": "Default tasks context",
-      "updated": "2025-08-25T15:42:33.149Z"
+      "updated": "2025-08-25T17:03:40.342Z"
     }
   }
 }
