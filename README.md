@@ -43,12 +43,22 @@ PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## Available Commands
 
+### Application Commands
 - `make dev` - Start development server
 - `make build` - Build for production
 - `make lint` - Run ESLint
 - `make format` - Format code with Prettier
 - `make install` - Install dependencies
 - `make clean` - Clean build artifacts
+
+### Database Commands
+- `make db-start` - Start Supabase local development
+- `make db-stop` - Stop Supabase local development
+- `make db-reset` - Reset database and apply all migrations
+- `make db-push` - Push local schema changes to remote database
+- `make db-pull` - Pull remote schema changes to local
+- `make db-migrate` - Apply migrations (schema → RLS → seed)
+- `make db-status` - Show database migration status
 
 ## Authentication
 
@@ -83,3 +93,67 @@ The application follows SvelteKit conventions:
 - Global styles in `src/app.css`
 
 Code quality is maintained through ESLint and Prettier configurations.
+
+## Database Schema & Migrations
+
+The application uses PostgreSQL with Supabase and includes:
+
+### Database Structure
+- **Hospital**: Medical facilities with contact information
+- **Bangsal**: Hospital wards/departments
+- **Patient**: Patient records with medical record numbers
+- **SOAP**: Medical notes (Subjective, Objective, Assessment, Plan)
+
+### Migration Files
+Located in `app/sql/`:
+- `01_schema.sql` - Tables, indexes, and triggers
+- `02_rls.sql` - Row Level Security policies
+- `03_seed.sql` - Test data for development
+
+### Key Features
+- **Row Level Security (RLS)**: Users can only access their own data
+- **Fuzzy Search**: `pg_trgm` extension for patient name search
+- **Performance Indexes**: Optimized queries for patient and SOAP records
+- **Timezone Support**: All timestamps use `timestamptz` with Asia/Jakarta default
+
+### Database Setup
+
+1. **Initial Setup:**
+   ```bash
+   # Start Supabase local development
+   make db-start
+   
+   # Apply all migrations (schema + RLS + seed data)
+   make db-reset
+   ```
+
+2. **Development Workflow:**
+   ```bash
+   # Reset and reapply all migrations
+   make db-reset
+   
+   # Push local changes to remote
+   make db-push
+   
+   # Pull remote changes to local
+   make db-pull
+   ```
+
+3. **RLS Testing:**
+   ```sql
+   -- Test as owner user (should return data)
+   SELECT * FROM patient WHERE full_name ILIKE '%bintang%';
+   
+   -- Test fuzzy search ranking
+   SELECT full_name, similarity(full_name, 'bintang') as score 
+   FROM patient 
+   WHERE full_name % 'bintang' 
+   ORDER BY score DESC;
+   ```
+
+### Common RLS Debugging
+
+- **Check current user:** `SELECT auth.uid();`
+- **Verify RLS is enabled:** `SELECT schemaname, tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';`
+- **Test cross-user access:** Switch user context and verify no data leakage
+- **Debug policies:** Use `EXPLAIN` to see policy evaluation
