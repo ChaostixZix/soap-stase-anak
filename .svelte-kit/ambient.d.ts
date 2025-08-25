@@ -39,6 +39,7 @@ declare module '$env/static/private' {
 	export const npm_config_noproxy: string;
 	export const PORT: string;
 	export const HOME: string;
+	export const OLDPWD: string;
 	export const npm_package_json: string;
 	export const NODE_OPTIONS: string;
 	export const npm_config_userconfig: string;
@@ -63,9 +64,9 @@ declare module '$env/static/private' {
 	export const LANG: string;
 	export const npm_lifecycle_script: string;
 	export const SHELL: string;
+	export const npm_package_version: string;
 	export const HOST: string;
 	export const npm_lifecycle_event: string;
-	export const npm_package_version: string;
 	export const CLAUDECODE: string;
 	export const npm_config_globalconfig: string;
 	export const npm_config_init_module: string;
@@ -119,6 +120,7 @@ declare module '$env/dynamic/private' {
 		npm_config_noproxy: string;
 		PORT: string;
 		HOME: string;
+		OLDPWD: string;
 		npm_package_json: string;
 		NODE_OPTIONS: string;
 		npm_config_userconfig: string;
@@ -143,9 +145,9 @@ declare module '$env/dynamic/private' {
 		LANG: string;
 		npm_lifecycle_script: string;
 		SHELL: string;
+		npm_package_version: string;
 		HOST: string;
 		npm_lifecycle_event: string;
-		npm_package_version: string;
 		CLAUDECODE: string;
 		npm_config_globalconfig: string;
 		npm_config_init_module: string;
