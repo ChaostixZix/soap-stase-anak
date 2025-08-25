@@ -9,17 +9,53 @@
 		</p>
 	</div>
 
-	<div class="mt-10">
+	<div class="mt-10 space-y-6">
+		<!-- Development Status -->
+		<div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+			<div class="flex">
+				<div class="flex-shrink-0">
+					<span class="text-amber-400 text-xl">🚧</span>
+				</div>
+				<div class="ml-3">
+					<h3 class="text-sm font-medium text-amber-800">Development Mode</h3>
+					<p class="mt-1 text-sm text-amber-700">
+						Authentication is currently disabled. Configure your Supabase project details in <code class="bg-amber-200 px-1 rounded">.env</code> to enable authentication.
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Application Status -->
 		<div class="bg-white overflow-hidden shadow rounded-lg divide-y divide-gray-200">
 			<div class="px-4 py-5 sm:px-6">
-				<h3 class="text-lg leading-6 font-medium text-gray-900">Getting Started</h3>
+				<h3 class="text-lg leading-6 font-medium text-gray-900">Application Status</h3>
 				<p class="mt-1 max-w-2xl text-sm text-gray-500">
-					Your SOAP Manager application is ready. The authentication system is configured and working.
+					Your SOAP Manager application scaffold is ready for development.
 				</p>
 			</div>
 			<div class="px-4 py-5 sm:p-6">
+				<div class="space-y-3">
+					<div class="flex items-center">
+						<span class="text-green-500 mr-2">✅</span>
+						<span class="text-sm text-gray-600">SvelteKit with TypeScript configured</span>
+					</div>
+					<div class="flex items-center">
+						<span class="text-green-500 mr-2">✅</span>
+						<span class="text-sm text-gray-600">Tailwind CSS v4 setup complete</span>
+					</div>
+					<div class="flex items-center">
+						<span class="text-green-500 mr-2">✅</span>
+						<span class="text-sm text-gray-600">Development scripts and Makefile ready</span>
+					</div>
+					<div class="flex items-center">
+						<span class="text-yellow-500 mr-2">⏳</span>
+						<span class="text-sm text-gray-600">Supabase authentication (pending configuration)</span>
+					</div>
+				</div>
+			</div>
+			<div class="px-4 py-5 sm:p-6 bg-gray-50">
 				<p class="text-sm text-gray-600">
-					This application uses Asia/Jakarta timezone as the default for all medical records and timestamps.
+					<strong>Timezone:</strong> Asia/Jakarta (default for all medical records and timestamps)
 				</p>
 			</div>
 		</div>

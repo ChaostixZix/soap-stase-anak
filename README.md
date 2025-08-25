@@ -52,8 +52,15 @@ PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 ## Authentication
 
-The app uses Supabase magic link authentication:
+⚠️ **Currently Disabled for Development**
 
+Authentication is temporarily disabled to allow development without Supabase configuration. The app runs in development mode with a visible indicator in the navbar.
+
+**To enable authentication:**
+1. Configure your Supabase project details in `.env`
+2. Update `src/routes/+layout.svelte` to re-enable the `ProtectedRoute` component
+
+**When enabled, the app uses Supabase magic link authentication:**
 1. Users enter their email on `/login`
 2. Magic link is sent to their email
 3. Clicking the link authenticates and redirects to the app

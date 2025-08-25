@@ -39,9 +39,7 @@ declare module '$env/static/private' {
 	export const npm_config_noproxy: string;
 	export const PORT: string;
 	export const HOME: string;
-	export const OLDPWD: string;
 	export const npm_package_json: string;
-	export const NODE_OPTIONS: string;
 	export const npm_config_userconfig: string;
 	export const npm_config_local_prefix: string;
 	export const SSL_CERT_FILE: string;
@@ -52,6 +50,7 @@ declare module '$env/static/private' {
 	export const npm_config_npm_version: string;
 	export const npm_config_prefix: string;
 	export const JOURNAL_STREAM: string;
+	export const _: string;
 	export const npm_config_cache: string;
 	export const OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 	export const npm_config_node_gyp: string;
@@ -120,9 +119,7 @@ declare module '$env/dynamic/private' {
 		npm_config_noproxy: string;
 		PORT: string;
 		HOME: string;
-		OLDPWD: string;
 		npm_package_json: string;
-		NODE_OPTIONS: string;
 		npm_config_userconfig: string;
 		npm_config_local_prefix: string;
 		SSL_CERT_FILE: string;
@@ -133,6 +130,7 @@ declare module '$env/dynamic/private' {
 		npm_config_npm_version: string;
 		npm_config_prefix: string;
 		JOURNAL_STREAM: string;
+		_: string;
 		npm_config_cache: string;
 		OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 		npm_config_node_gyp: string;
