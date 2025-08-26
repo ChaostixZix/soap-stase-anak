@@ -8,4 +8,8 @@ declare global {
 	}
 }
 
+declare module '$env/static/private' {
+	export const SUPABASE_SERVICE_ROLE_KEY: string;
+}
+
 export {};

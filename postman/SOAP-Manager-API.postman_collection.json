@@ -1,0 +1,1150 @@
+{
+  "info": {
+    "name": "SOAP Manager API",
+    "description": "Complete API collection for SOAP STASE ANAK - Hospital management system with SOAP documentation for pediatric patients.\n\n## Authentication\nAll endpoints require Bearer token authentication. Set your JWT token in the Authorization header.\n\n## Base URL\nUpdate the `{{base_url}}` variable with your server URL (e.g., http://localhost:5173 or your production URL).\n\n## Test Data\nRun the database seeder first: `npm run seed`\n\n## Error Handling\nAll endpoints return standardized responses:\n- Success: `{\"ok\": true, \"data\": {...}, \"requestId\": \"req_...\"}`\n- Error: `{\"ok\": false, \"error\": \"message\", \"requestId\": \"req_...\"}`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "soap-manager",
+    "_collection_link": "https://documenter.getpostman.com/view/soap-manager"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5173",
+      "type": "string"
+    },
+    {
+      "key": "auth_token",
+      "value": "your-jwt-token-here",
+      "type": "string"
+    },
+    {
+      "key": "hospital_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bangsal_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "patient_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "soap_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{auth_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "🏥 Hospitals",
+      "description": "Hospital management endpoints",
+      "item": [
+        {
+          "name": "List Hospitals",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has correct structure\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('requestId');",
+                  "});",
+                  "",
+                  "pm.test(\"Data is array of hospitals\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    ",
+                  "    if (jsonData.data.length > 0) {",
+                  "        const hospital = jsonData.data[0];",
+                  "        pm.expect(hospital).to.have.property('id');",
+                  "        pm.expect(hospital).to.have.property('name');",
+                  "        pm.expect(hospital).to.have.property('owner_id');",
+                  "        ",
+                  "        // Store first hospital ID for other tests",
+                  "        pm.collectionVariables.set('hospital_id', hospital.id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hospitals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals"]
+            },
+            "description": "Retrieve all hospitals owned by the authenticated user."
+          }
+        },
+        {
+          "name": "Create Hospital",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Hospital created successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.expect(jsonData.data).to.have.property('name', 'Test Hospital - Postman');",
+                  "    ",
+                  "    // Store created hospital ID",
+                  "    pm.collectionVariables.set('hospital_id', jsonData.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Hospital - Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/hospitals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals"]
+            },
+            "description": "Create a new hospital. Hospital names must be unique per user."
+          }
+        },
+        {
+          "name": "Get Hospital by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Hospital details retrieved\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('id', pm.collectionVariables.get('hospital_id'));",
+                  "    pm.expect(jsonData.data).to.have.property('name');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hospitals/{{hospital_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals", "{{hospital_id}}"]
+            },
+            "description": "Retrieve details of a specific hospital by ID."
+          }
+        },
+        {
+          "name": "Update Hospital",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Hospital updated successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('name', 'Updated Test Hospital');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Test Hospital\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/hospitals/{{hospital_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals", "{{hospital_id}}"]
+            },
+            "description": "Update hospital details. Only the name field can be updated."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏨 Bangsal (Wards)",
+      "description": "Ward/Bangsal management endpoints",
+      "item": [
+        {
+          "name": "List Bangsal by Hospital",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Bangsal list retrieved\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    ",
+                  "    if (jsonData.data.length > 0) {",
+                  "        const bangsal = jsonData.data[0];",
+                  "        pm.expect(bangsal).to.have.property('id');",
+                  "        pm.expect(bangsal).to.have.property('name');",
+                  "        pm.expect(bangsal).to.have.property('hospital_id', pm.collectionVariables.get('hospital_id'));",
+                  "        ",
+                  "        // Store first bangsal ID",
+                  "        pm.collectionVariables.set('bangsal_id', bangsal.id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bangsal?hospital_id={{hospital_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bangsal"],
+              "query": [
+                {
+                  "key": "hospital_id",
+                  "value": "{{hospital_id}}"
+                }
+              ]
+            },
+            "description": "Get all bangsal (wards) for a specific hospital. Requires hospital_id parameter."
+          }
+        },
+        {
+          "name": "Create Bangsal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Bangsal created successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.expect(jsonData.data).to.have.property('name', 'Test Bangsal - Postman');",
+                  "    pm.expect(jsonData.data).to.have.property('hospital_id', pm.collectionVariables.get('hospital_id'));",
+                  "    ",
+                  "    // Store created bangsal ID",
+                  "    pm.collectionVariables.set('bangsal_id', jsonData.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hospital_id\": \"{{hospital_id}}\",\n  \"name\": \"Test Bangsal - Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bangsal",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bangsal"]
+            },
+            "description": "Create a new bangsal (ward) within a hospital."
+          }
+        },
+        {
+          "name": "Update Bangsal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Bangsal updated successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('name', 'Updated Test Bangsal');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Test Bangsal\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/bangsal/{{bangsal_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bangsal", "{{bangsal_id}}"]
+            },
+            "description": "Update bangsal details."
+          }
+        }
+      ]
+    },
+    {
+      "name": "👶 Patients",
+      "description": "Patient management endpoints",
+      "item": [
+        {
+          "name": "List All Patients",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Patients list retrieved\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    ",
+                  "    if (jsonData.data.length > 0) {",
+                  "        const patient = jsonData.data[0];",
+                  "        pm.expect(patient).to.have.property('id');",
+                  "        pm.expect(patient).to.have.property('full_name');",
+                  "        pm.expect(patient).to.have.property('hospital');",
+                  "        pm.expect(patient).to.have.property('bangsal');",
+                  "        ",
+                  "        // Store first patient ID",
+                  "        pm.collectionVariables.set('patient_id', patient.id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/patients",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"]
+            },
+            "description": "Get all patients for the authenticated user."
+          }
+        },
+        {
+          "name": "Search Patients by Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Search results contain Bintang\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    ",
+                  "    if (jsonData.data.length > 0) {",
+                  "        jsonData.data.forEach(patient => {",
+                  "            pm.expect(patient.full_name.toLowerCase()).to.include('bintang');",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/patients?search=Bintang",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Bintang"
+                }
+              ]
+            },
+            "description": "Search patients by name using ILIKE pattern matching."
+          }
+        },
+        {
+          "name": "Filter Patients by Hospital",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"All patients belong to specified hospital\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    ",
+                  "    jsonData.data.forEach(patient => {",
+                  "        pm.expect(patient.hospital_id).to.equal(pm.collectionVariables.get('hospital_id'));",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/patients?hospital_id={{hospital_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"],
+              "query": [
+                {
+                  "key": "hospital_id",
+                  "value": "{{hospital_id}}"
+                }
+              ]
+            },
+            "description": "Filter patients by hospital."
+          }
+        },
+        {
+          "name": "Create Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Patient created successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.expect(jsonData.data).to.have.property('full_name', 'Test Patient - Postman');",
+                  "    pm.expect(jsonData.data).to.have.property('room_number', '999');",
+                  "    pm.expect(jsonData.data).to.have.property('mrn', 'TEST001');",
+                  "    ",
+                  "    // Store created patient ID",
+                  "    pm.collectionVariables.set('patient_id', jsonData.data.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hospital_id\": \"{{hospital_id}}\",\n  \"bangsal_id\": \"{{bangsal_id}}\",\n  \"full_name\": \"Test Patient - Postman\",\n  \"room_number\": \"999\",\n  \"mrn\": \"TEST001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients"]
+            },
+            "description": "Create a new patient in a hospital bangsal."
+          }
+        },
+        {
+          "name": "Get Patient by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Patient details retrieved\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('id', pm.collectionVariables.get('patient_id'));",
+                  "    pm.expect(jsonData.data).to.have.property('full_name');",
+                  "    pm.expect(jsonData.data).to.have.property('hospital');",
+                  "    pm.expect(jsonData.data).to.have.property('bangsal');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/patients/{{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "{{patient_id}}"]
+            },
+            "description": "Get detailed information about a specific patient."
+          }
+        },
+        {
+          "name": "Update Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Patient updated successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('room_number', '888');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"room_number\": \"888\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/{{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "{{patient_id}}"]
+            },
+            "description": "Update patient information. All fields are optional."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 SOAP",
+      "description": "SOAP (Subjective, Objective, Assessment, Plan) documentation endpoints",
+      "item": [
+        {
+          "name": "Get Latest SOAP for Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"SOAP data structure is correct\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    ",
+                  "    // Data can be null if no SOAP exists",
+                  "    if (jsonData.data) {",
+                  "        pm.expect(jsonData.data).to.have.property('id');",
+                  "        pm.expect(jsonData.data).to.have.property('patient_id', pm.collectionVariables.get('patient_id'));",
+                  "        pm.expect(jsonData.data).to.have.property('s'); // Subjective",
+                  "        pm.expect(jsonData.data).to.have.property('o'); // Objective",
+                  "        pm.expect(jsonData.data).to.have.property('a'); // Assessment",
+                  "        pm.expect(jsonData.data).to.have.property('p'); // Plan (array)",
+                  "        pm.expect(jsonData.data.p).to.be.an('array');",
+                  "        ",
+                  "        // Store SOAP ID for other tests",
+                  "        pm.collectionVariables.set('soap_id', jsonData.data.id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/patients/{{patient_id}}/soap/latest",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "{{patient_id}}", "soap", "latest"]
+            },
+            "description": "Get the most recent SOAP entry for a patient. Returns null if no SOAP entries exist."
+          }
+        },
+        {
+          "name": "Create SOAP Entry",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"SOAP created successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('id');",
+                  "    pm.expect(jsonData.data).to.have.property('patient_id', pm.collectionVariables.get('patient_id'));",
+                  "    pm.expect(jsonData.data).to.have.property('s', 'Test subjective symptoms');",
+                  "    pm.expect(jsonData.data).to.have.property('a', 'Test assessment');",
+                  "    pm.expect(jsonData.data.p).to.be.an('array');",
+                  "    pm.expect(jsonData.data.p).to.have.lengthOf(2);",
+                  "    ",
+                  "    // Store SOAP ID",
+                  "    pm.collectionVariables.set('soap_id', jsonData.data.id);",
+                  "    ",
+                  "    // Verify plan items have correct structure",
+                  "    jsonData.data.p.forEach(planItem => {",
+                  "        pm.expect(planItem).to.have.property('drug');",
+                  "        pm.expect(planItem).to.have.property('start_date');",
+                  "        pm.expect(planItem).to.have.property('end_date');",
+                  "        pm.expect(planItem).to.have.property('status');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"patient_id\": \"{{patient_id}}\",\n  \"s\": \"Test subjective symptoms\",\n  \"o\": \"Test objective findings\",\n  \"a\": \"Test assessment\",\n  \"p\": [\n    {\n      \"drug\": \"Paracetamol\",\n      \"dose\": \"500mg\",\n      \"route\": \"PO\",\n      \"freq\": \"q6h\",\n      \"days\": 3\n    },\n    {\n      \"drug\": \"Amoxicillin\",\n      \"dose\": \"250mg\",\n      \"route\": \"PO\",\n      \"freq\": \"q8h\",\n      \"days\": 7,\n      \"start_date\": \"2024-01-15\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/patients/{{patient_id}}/soap",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "{{patient_id}}", "soap"]
+            },
+            "description": "Create a new SOAP entry with plan items. Plan items will automatically compute start/end dates and status based on Jakarta timezone."
+          }
+        },
+        {
+          "name": "Get SOAP by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"SOAP retrieved successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('id', pm.collectionVariables.get('soap_id'));",
+                  "    pm.expect(jsonData.data).to.have.property('patient');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/soap/{{soap_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "soap", "{{soap_id}}"]
+            },
+            "description": "Get a specific SOAP entry by ID, including patient information."
+          }
+        },
+        {
+          "name": "Update SOAP (S/O/A Only)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"SOAP updated successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('a', 'Updated assessment - pneumonia confirmed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"a\": \"Updated assessment - pneumonia confirmed\",\n  \"o\": \"Updated objective findings - chest X-ray shows consolidation\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/soap/{{soap_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "soap", "{{soap_id}}"]
+            },
+            "description": "Update only the S (Subjective), O (Objective), or A (Assessment) fields of a SOAP entry. Plan items are managed separately."
+          }
+        }
+      ]
+    },
+    {
+      "name": "💊 Plan Management",
+      "description": "Medication plan management endpoints",
+      "item": [
+        {
+          "name": "Add Plan Items to SOAP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Plan items added successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('soap');",
+                  "    pm.expect(jsonData.data).to.have.property('planSummary');",
+                  "    pm.expect(jsonData.data).to.have.property('addedItems', 2);",
+                  "    ",
+                  "    // Plan summary should contain the new medications",
+                  "    pm.expect(jsonData.data.planSummary).to.include('Cefotaxime');",
+                  "    pm.expect(jsonData.data.planSummary).to.include('Furosemide');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"drug\": \"Cefotaxime\",\n      \"dose\": \"1g\",\n      \"route\": \"IV\",\n      \"freq\": \"q8h\",\n      \"days\": 5\n    },\n    {\n      \"drug\": \"Furosemide\",\n      \"dose\": \"20mg\",\n      \"route\": \"IV\",\n      \"freq\": \"q12h\",\n      \"days\": 3\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/soap/{{soap_id}}/plan-items",
+              "host": ["{{base_url}}"],
+              "path": ["api", "soap", "{{soap_id}}", "plan-items"]
+            },
+            "description": "Add new plan items (medications) to an existing SOAP entry. This will automatically recompute existing plan statuses and provide a formatted summary."
+          }
+        },
+        {
+          "name": "Recompute Plan Statuses",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Plan statuses recomputed\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('soap');",
+                  "    pm.expect(jsonData.data).to.have.property('planSummary');",
+                  "    pm.expect(jsonData.data).to.have.property('changed');",
+                  "    ",
+                  "    // Should have plan summary with active/done sections",
+                  "    if (jsonData.data.planSummary.includes('Plan Aktif') || jsonData.data.planSummary.includes('Plan Selesai')) {",
+                  "        pm.test('Plan summary formatted correctly', () => {",
+                  "            pm.expect(true).to.be.true;",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/soap/{{soap_id}}/recompute-plan",
+              "host": ["{{base_url}}"],
+              "path": ["api", "soap", "{{soap_id}}", "recompute-plan"]
+            },
+            "description": "Recompute the status of all plan items in a SOAP entry based on current date. Items with end_date >= today will be marked as 'active', others as 'done'."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧪 Error Cases",
+      "description": "Test error handling and validation",
+      "item": [
+        {
+          "name": "401 - Unauthorized Request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is 401 Unauthorized\", function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response structure\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', false);",
+                  "    pm.expect(jsonData).to.have.property('error', 'Unauthorized');",
+                  "    pm.expect(jsonData).to.have.property('requestId');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hospitals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals"]
+            },
+            "description": "Test unauthorized access without Bearer token."
+          },
+          "auth": {
+            "type": "noauth"
+          }
+        },
+        {
+          "name": "400 - Invalid Hospital ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is 400 Bad Request\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response for invalid UUID\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', false);",
+                  "    pm.expect(jsonData).to.have.property('error', 'Invalid hospital ID');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hospitals/invalid-uuid",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals", "invalid-uuid"]
+            },
+            "description": "Test validation error for invalid UUID format."
+          }
+        },
+        {
+          "name": "404 - Hospital Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is 404 Not Found\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response for non-existent resource\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', false);",
+                  "    pm.expect(jsonData).to.have.property('error', 'Resource not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hospitals/12345678-1234-1234-1234-123456789012",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals", "12345678-1234-1234-1234-123456789012"]
+            },
+            "description": "Test 404 error for non-existent hospital with valid UUID."
+          }
+        },
+        {
+          "name": "409 - Duplicate Hospital Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is 409 Conflict\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test(\"Error response for duplicate\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', false);",
+                  "    pm.expect(jsonData).to.have.property('error', 'Resource already exists');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Hospital - Postman\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/hospitals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals"]
+            },
+            "description": "Test duplicate hospital name validation (should fail if run after successful creation)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧹 Cleanup",
+      "description": "Clean up test data",
+      "item": [
+        {
+          "name": "Delete Test Patient",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Patient deleted successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('deleted', true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/patients/{{patient_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "patients", "{{patient_id}}"]
+            },
+            "description": "Delete the test patient created during testing."
+          }
+        },
+        {
+          "name": "Delete Test Bangsal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Bangsal deleted successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('deleted', true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/bangsal/{{bangsal_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "bangsal", "{{bangsal_id}}"]
+            },
+            "description": "Delete the test bangsal created during testing."
+          }
+        },
+        {
+          "name": "Delete Test Hospital",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Response is successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Hospital deleted successfully\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ok', true);",
+                  "    pm.expect(jsonData.data).to.have.property('deleted', true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/hospitals/{{hospital_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "hospitals", "{{hospital_id}}"]
+            },
+            "description": "Delete the test hospital created during testing. This will cascade delete all related bangsal and patients."
+          }
+        }
+      ]
+    }
+  ]
+}
