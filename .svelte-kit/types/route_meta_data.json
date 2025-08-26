@@ -1,6 +1,8 @@
 {
 	"/": [
-		"src/routes/+page.server.ts"
+		"src/routes/+page.server.ts",
+		"src/routes/+layout.server.ts",
+		"src/routes/+layout.server.ts"
 	],
 	"/api/bangsal": [
 		"src/routes/api/bangsal/+server.ts"
@@ -35,8 +37,16 @@
 	"/api/soap/[soap_id]/recompute-plan": [
 		"src/routes/api/soap/[soap_id]/recompute-plan/+server.ts"
 	],
-	"/auth/callback": [],
-	"/bangsal": [],
-	"/hospitals": [],
-	"/login": []
+	"/auth/callback": [
+		"src/routes/+layout.server.ts"
+	],
+	"/bangsal": [
+		"src/routes/+layout.server.ts"
+	],
+	"/hospitals": [
+		"src/routes/+layout.server.ts"
+	],
+	"/login": [
+		"src/routes/+layout.server.ts"
+	]
 }
