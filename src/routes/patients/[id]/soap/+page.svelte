@@ -71,7 +71,6 @@
   async function saveSoapField(field: 's' | 'o' | 'a', value: string) {
     if (!soap) return;
     
-    const savingField = field === 's' ? 'savingS' : field === 'o' ? 'savingO' : 'savingA';
     
     if (field === 's') savingS = true;
     else if (field === 'o') savingO = true;
