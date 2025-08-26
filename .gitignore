@@ -10,13 +10,11 @@ yarn-debug.log*
 yarn-error.log*
 dev-debug.log
 .mcp.json
-
 # Dependency directories
 node_modules/
 
 # SvelteKit generated files
 .svelte-kit/
-
 # Environment variables
 .env
 
