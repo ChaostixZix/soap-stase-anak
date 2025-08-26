@@ -42,6 +42,7 @@ declare module '$env/static/private' {
 	export const npm_package_json: string;
 	export const npm_config_userconfig: string;
 	export const npm_config_local_prefix: string;
+	export const NODE_NO_WARNINGS: string;
 	export const SSL_CERT_FILE: string;
 	export const npm_config_yes: string;
 	export const SYSTEMD_EXEC_PID: string;
@@ -51,6 +52,9 @@ declare module '$env/static/private' {
 	export const npm_config_prefix: string;
 	export const JOURNAL_STREAM: string;
 	export const _: string;
+
+	export const RUST_LOG: string;
+
 	export const npm_config_cache: string;
 	export const OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 	export const npm_config_node_gyp: string;
@@ -73,6 +77,7 @@ declare module '$env/static/private' {
 	export const npm_execpath: string;
 	export const npm_config_global_prefix: string;
 	export const npm_command: string;
+	export const CODEX_MANAGED_BY_NPM: string;
 	export const EDITOR: string;
 	export const INIT_CWD: string;
 	export const NODE_ENV: string;
@@ -122,6 +127,7 @@ declare module '$env/dynamic/private' {
 		npm_package_json: string;
 		npm_config_userconfig: string;
 		npm_config_local_prefix: string;
+		NODE_NO_WARNINGS: string;
 		SSL_CERT_FILE: string;
 		npm_config_yes: string;
 		SYSTEMD_EXEC_PID: string;
@@ -131,6 +137,7 @@ declare module '$env/dynamic/private' {
 		npm_config_prefix: string;
 		JOURNAL_STREAM: string;
 		_: string;
+		RUST_LOG: string;
 		npm_config_cache: string;
 		OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 		npm_config_node_gyp: string;
@@ -153,6 +160,7 @@ declare module '$env/dynamic/private' {
 		npm_execpath: string;
 		npm_config_global_prefix: string;
 		npm_command: string;
+		CODEX_MANAGED_BY_NPM: string;
 		EDITOR: string;
 		INIT_CWD: string;
 		NODE_ENV: string;

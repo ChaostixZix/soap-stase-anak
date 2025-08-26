@@ -197,7 +197,36 @@ You are a clinical SOAP assistant for a small ward app.
 
 ⸻
 
-8) Implementation Plan (Tasks)
+8) End-to-End Application Flow (The Orchestrator Pattern)
+
+This section details the step-by-step process of how a natural language command from a user is processed through the system. This pattern is key to ensuring security, scalability, and a clear separation of concerns.
+
+The flow follows this high-level path:
+[User] -> [SvelteKit API Orchestrator] -> [Gemini API] -> [SvelteKit API Orchestrator] -> [MCP Server] -> [SvelteKit API Orchestrator] -> [User]
+
+Here is the detailed breakdown of the process:
+
+    1.  **User Input**: The user types a command (e.g., "Apa diagnosis Bintang?") into a client interface (the Web UI's command box or the Telegram bot).
+
+    2.  **Request to Orchestrator**: The client sends the raw text to the central `/api/nl` endpoint. This endpoint acts as the **Orchestrator**.
+
+    3.  **Orchestrator Consults AI**: The Orchestrator makes an API call to the Gemini API. It sends the user's prompt along with the definitions of the available, secure tools from the MCP server. It asks the AI to determine the user's intent and decide which tool to call first.
+
+    4.  **AI Responds with a Plan**: The Gemini API returns a structured JSON object to the Orchestrator, instructing it which tool to call and with what arguments (e.g., `{ name: 'patient.searchByName', args: { name: 'Bintang' } }`). The AI does not execute anything itself.
+
+    5.  **Orchestrator Validates and Delegates**: The Orchestrator validates the AI's suggested arguments using a Zod schema. If valid, it calls the specified function on the **MCP Server**.
+
+    6.  **MCP Server Executes Task**: The MCP Server runs the function (e.g., a fuzzy search query on the database), and returns a structured result (e.g., a list of matching patients) back to the Orchestrator.
+
+    7.  **Orchestrator Manages the Conversation Loop**:
+        *   If the task is complete (e.g., a single patient was found and their diagnosis retrieved), the Orchestrator can format the final response and send it to the user.
+        *   If the task requires more steps (e.g., multiple patients were found), the Orchestrator repeats the loop. It calls the Gemini API again with the full conversation history, including the result from the tool call, and asks for the next step (e.g., "Ask the user to disambiguate").
+
+This loop continues until a final answer is achieved, ensuring that the AI provides the reasoning while the Orchestrator and MCP server provide the secure execution.
+
+⸻
+
+9) Implementation Plan (Tasks)
 	1.	Scaffold SvelteKit + Tailwind + Supabase client; auth with email link (or magic link).
 	2.	DB: apply SQL migrations; enable RLS; add seed.
 	3.	Data access: server routes for hospitals, bangsal, patients, SOAP CRUD (Zod validated).
@@ -212,7 +241,7 @@ You are a clinical SOAP assistant for a small ward app.
 
 ⸻
 
-9) Parsing NL → Plan Items
+10) Parsing NL → Plan Items
 	•	Accept forms like:
 	•	“Inj. Cefotaxime 1g IV q8h 2 hari”
 	•	“Inf. Paracetamol 1g PO bid 2 hari mulai 26 Aug”
@@ -222,7 +251,7 @@ You are a clinical SOAP assistant for a small ward app.
 
 ⸻
 
-10) Example Outputs (for the UI)
+11) Example Outputs (for the UI)
 
 Plan Aktif
 - Inj. Cefotaxime 1g IV q8h (2 hari, sampai 28 Aug)
@@ -233,7 +262,7 @@ Plan Aktif
 
 ⸻
 
-11) File Layout
+12) File Layout
 
 /app
   /src
@@ -262,7 +291,7 @@ Plan Aktif
 
 ⸻
 
-12) Acceptance Criteria
+13) Acceptance Criteria
 	•	I can:
 	1.	Create hospital & bangsal; add patients with room numbers.
 	2.	Ask in Indonesian: “Apa diagnosis Bintang?” → if two “Bintang”, I’m asked which; then see diagnosis from latest SOAP.
@@ -274,7 +303,7 @@ Plan Aktif
 
 ⸻
 
-13) What to Hand Back
+14) What to Hand Back
 	•	Source code as per file layout.
 	•	Supabase migration & seed applied instructions.
 	•	README.md with:
@@ -297,7 +326,7 @@ TZ=Asia/Jakarta
 
 ⸻
 
-14) Extras (if time allows)
+15) Extras (if time allows)
 	•	Add pg_trgm similarity threshold tuning.
 	•	Simple audit trail table for SOAP edits.
 	•	CSV export per bangsal.
