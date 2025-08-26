@@ -215,6 +215,17 @@ export function mapSupabaseError(error: unknown, requestId?: string): ApiRespons
 
 // Auth helper to get user session from request
 export async function getUserFromRequest(request: globalThis.Request) {
+  // Development mode: bypass auth and return test user
+  const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (isDevelopment) {
+    // Return hardcoded test user for development
+    return {
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      email: 'test-owner@example.com'
+    };
+  }
+
   const supabase = createServerClient();
   const authHeader = request.headers.get('authorization');
   
