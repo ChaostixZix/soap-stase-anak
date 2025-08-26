@@ -167,7 +167,9 @@
 
 <!-- Toast notifications -->
 {#each toasts as toast (toast.id)}
-  <div class="fixed top-4 right-4 z-50 bg-{toast.type === 'success' ? 'green' : 'red'}-100 border border-{toast.type === 'success' ? 'green' : 'red'}-200 text-{toast.type === 'success' ? 'green' : 'red'}-800 px-4 py-2 rounded-md shadow-lg">
+  <div class="{toast.type === 'success'
+    ? 'fixed top-4 right-4 z-50 bg-green-100 border border-green-200 text-green-800 px-4 py-2 rounded-md shadow-lg'
+    : 'fixed top-4 right-4 z-50 bg-red-100 border border-red-200 text-red-800 px-4 py-2 rounded-md shadow-lg'}">
     {toast.message}
   </div>
 {/each}
