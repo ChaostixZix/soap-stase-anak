@@ -161,6 +161,9 @@ Located in `app/sql/`:
 - **Check current user:** `SELECT auth.uid();`
 - **Verify RLS is enabled:** `SELECT schemaname, tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';`
 - **Test cross-user access:** Switch user context and verify no data leakage
+<<<<<<< HEAD
+- **Debug policies:** Use `EXPLAIN` to see policy evaluation
+=======
 - **Debug policies:** Use `EXPLAIN` to see policy evaluation
 
 ## Telegram Bot Integration
@@ -273,3 +276,4 @@ curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
 **Disambiguation Issues:**
 - Selections expire after some time (restart with new command)
 - Patient list limited to 5 matches for performance
+>>>>>>> main
