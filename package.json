@@ -13,7 +13,7 @@
     "format": "prettier --write src",
 
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "test:mcp": "NODE_OPTIONS='--experimental-vm-modules' jest mcp/tests/"
+    "test:mcp": "NODE_OPTIONS='--experimental-vm-modules' jest mcp/tests/",
     "seed": "tsx scripts/seed-db.ts"
   },
   "devDependencies": {
