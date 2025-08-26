@@ -41,9 +41,7 @@
 				</div>
 			</div>
 			<div class="flex items-center space-x-4">
-				<span class="text-sm text-amber-700 bg-amber-100 px-2 py-1 rounded">
-					🚧 Development Mode - Auth Disabled
-				</span>
+				<!-- Auth banner removed per request -->
 			</div>
 		</div>
 	</div>
