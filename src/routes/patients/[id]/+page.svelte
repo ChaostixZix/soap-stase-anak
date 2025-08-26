@@ -20,7 +20,7 @@
       const response = await fetch(`/api/patients/${patientId}`);
       const result = await response.json();
       
-      if (response.ok && result.success) {
+      if (response.ok && result.ok) {
         patient = result.data;
       } else {
         error = result.error || 'Failed to load patient';
