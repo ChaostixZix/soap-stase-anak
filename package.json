@@ -2,15 +2,22 @@
   "name": "soap-manager",
   "version": "0.0.1",
   "private": true,
+  "bin": {
+    "soap-tools": "./mcp/soap-tools.mjs"
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite dev --host --port 5173",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.svelte",
     "format": "prettier --write src",
+
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
+    "test:mcp": "NODE_OPTIONS='--experimental-vm-modules' jest mcp/tests/"
     "seed": "tsx scripts/seed-db.ts"
   },
   "devDependencies": {
+    "@jest/globals": "^30.0.5",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
@@ -23,6 +30,7 @@
     "eslint": "^9.34.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.11.0",
+    "jest": "^30.0.5",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
     "prettier-plugin-svelte": "^3.4.0",
@@ -34,8 +42,12 @@
   },
   "type": "module",
   "dependencies": {
+
+    "@modelcontextprotocol/sdk": "^1.17.4",
     "@supabase/supabase-js": "^2.56.0",
     "date-fns": "^4.1.0",
-    "zod": "^4.1.1"
+    "date-fns-tz": "^3.2.0",
+    "zod": "^3.25.76"
+
   }
 }
