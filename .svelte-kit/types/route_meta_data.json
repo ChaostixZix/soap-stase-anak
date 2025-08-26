@@ -34,5 +34,7 @@
 		"src/routes/api/soap/[soap_id]/recompute-plan/+server.ts"
 	],
 	"/auth/callback": [],
+	"/bangsal": [],
+	"/hospitals": [],
 	"/login": []
 }
