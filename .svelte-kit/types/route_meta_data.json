@@ -12,6 +12,9 @@
 	"/api/hospitals/[id]": [
 		"src/routes/api/hospitals/[id]/+server.ts"
 	],
+	"/api/nl": [
+		"src/routes/api/nl/+server.ts"
+	],
 	"/api/patients": [
 		"src/routes/api/patients/+server.ts"
 	],
@@ -34,5 +37,8 @@
 		"src/routes/api/soap/[soap_id]/recompute-plan/+server.ts"
 	],
 	"/auth/callback": [],
-	"/login": []
+	"/login": [],
+	"/webhooks/telegram": [
+		"src/routes/webhooks/telegram/+server.ts"
+	]
 }

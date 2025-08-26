@@ -39,6 +39,11 @@ Create a `.env` file with:
 ```env
 PUBLIC_SUPABASE_URL=your_supabase_project_url
 PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Telegram Bot (optional)
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+TELEGRAM_WEBHOOK_SECRET=your_webhook_secret_here
 ```
 
 ## Available Commands
@@ -157,3 +162,114 @@ Located in `app/sql/`:
 - **Verify RLS is enabled:** `SELECT schemaname, tablename, rowsecurity FROM pg_tables WHERE schemaname = 'public';`
 - **Test cross-user access:** Switch user context and verify no data leakage
 - **Debug policies:** Use `EXPLAIN` to see policy evaluation
+
+## Telegram Bot Integration
+
+The SOAP Manager includes a Telegram bot that allows Indonesian language commands for interacting with patient data.
+
+### Bot Setup
+
+1. **Create a Telegram Bot:**
+   ```bash
+   # Message @BotFather on Telegram
+   /newbot
+   # Follow prompts to get your bot token
+   ```
+
+2. **Configure Environment Variables:**
+   ```bash
+   # Add to your .env file
+   TELEGRAM_BOT_TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+   TELEGRAM_WEBHOOK_SECRET=your_random_secret_here
+   ```
+
+3. **Set Webhook URL:**
+   ```bash
+   # Replace with your deployed app URL
+   curl -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setWebhook" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "url": "https://your-app-domain.com/webhooks/telegram",
+       "secret_token": "your_random_secret_here"
+     }'
+   ```
+
+4. **Verify Webhook:**
+   ```bash
+   curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
+   ```
+
+### Supported Commands
+
+The bot understands Indonesian natural language commands:
+
+#### Diagnosis Queries
+```
+apa diagnosis bintang
+diagnosis bintang putra
+dx nisa
+```
+
+#### Medication Management
+```
+pasien bintang tambahkan obat injeksi cefotaxime untuk 2 hari
+tambah obat paracetamol 500mg po tid untuk bintang 3 hari
+beri injeksi ceftriaxone 1g iv q8h untuk nisa 5 hari
+```
+
+### Command Examples
+
+**Single Patient Match:**
+```
+User: apa diagnosis bintang
+Bot: 🏥 Diagnosis Bintang Putra:
+     Post-operative pneumonia, improving
+```
+
+**Multiple Patient Disambiguation:**
+```
+User: tambah obat cefotaxime untuk bintang 2 hari
+Bot: 🔍 Ditemukan beberapa pasien dengan nama tersebut. Pilih pasien yang dimaksud:
+     [Bintang — RS Husada / Bangsal Mawar / Kamar 12]
+     [Bintang Putra — RS Mitra / Bangsal Melati / Kamar 5]
+```
+
+**Medication Added:**
+```
+User: (after selecting patient)
+Bot: ✅ Obat ditambahkan untuk Bintang Putra:
+
+     Plan Aktif
+     - Inj. Cefotaxime 1g IV q8h (2 hari, sampai 28 Aug)
+     
+     ---- Plan Selesai
+     - Inf. Paracetamol 500mg PO bid (3 hari, selesai 27 Aug)
+```
+
+### Security Features
+
+- **Secret Token Validation**: Webhook verifies `X-Telegram-Bot-Api-Secret-Token` header
+- **Payload Size Limits**: Maximum 10KB payload size to prevent abuse
+- **User Authentication**: Each Telegram user ID maps to system user permissions
+- **Request Timeouts**: 10-second timeout for webhook processing
+- **Idempotency**: Update ID tracking prevents duplicate processing
+
+### Troubleshooting
+
+**Bot Not Responding:**
+```bash
+# Check webhook status
+curl "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
+
+# Check server logs for webhook errors
+# Verify TELEGRAM_WEBHOOK_SECRET matches setWebhook secret_token
+```
+
+**Commands Not Working:**
+- Ensure patient names exist in database
+- Check user has access permissions to patients
+- Verify medication parsing with simple commands first
+
+**Disambiguation Issues:**
+- Selections expire after some time (restart with new command)
+- Patient list limited to 5 matches for performance
