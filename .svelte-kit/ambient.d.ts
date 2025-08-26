@@ -32,12 +32,13 @@ declare module '$env/static/private' {
 	export const TZ: string;
 	export const USER: string;
 	export const npm_config_user_agent: string;
+	export const CLAUDE_CODE_ENTRYPOINT: string;
+	export const GIT_EDITOR: string;
 	export const npm_node_execpath: string;
 	export const SHLVL: string;
 	export const npm_config_noproxy: string;
 	export const PORT: string;
 	export const HOME: string;
-	export const OLDPWD: string;
 	export const npm_package_json: string;
 	export const npm_config_userconfig: string;
 	export const npm_config_local_prefix: string;
@@ -51,13 +52,17 @@ declare module '$env/static/private' {
 	export const npm_config_prefix: string;
 	export const JOURNAL_STREAM: string;
 	export const _: string;
+
 	export const RUST_LOG: string;
+
 	export const npm_config_cache: string;
+	export const OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 	export const npm_config_node_gyp: string;
 	export const PATH: string;
 	export const NODE: string;
 	export const INVOCATION_ID: string;
 	export const npm_package_name: string;
+	export const COREPACK_ENABLE_AUTO_PIN: string;
 	export const SSL_CERT_DIR: string;
 	export const LANG: string;
 	export const npm_lifecycle_script: string;
@@ -65,6 +70,7 @@ declare module '$env/static/private' {
 	export const npm_package_version: string;
 	export const HOST: string;
 	export const npm_lifecycle_event: string;
+	export const CLAUDECODE: string;
 	export const npm_config_globalconfig: string;
 	export const npm_config_init_module: string;
 	export const PWD: string;
@@ -111,12 +117,13 @@ declare module '$env/dynamic/private' {
 		TZ: string;
 		USER: string;
 		npm_config_user_agent: string;
+		CLAUDE_CODE_ENTRYPOINT: string;
+		GIT_EDITOR: string;
 		npm_node_execpath: string;
 		SHLVL: string;
 		npm_config_noproxy: string;
 		PORT: string;
 		HOME: string;
-		OLDPWD: string;
 		npm_package_json: string;
 		npm_config_userconfig: string;
 		npm_config_local_prefix: string;
@@ -132,11 +139,13 @@ declare module '$env/dynamic/private' {
 		_: string;
 		RUST_LOG: string;
 		npm_config_cache: string;
+		OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 		npm_config_node_gyp: string;
 		PATH: string;
 		NODE: string;
 		INVOCATION_ID: string;
 		npm_package_name: string;
+		COREPACK_ENABLE_AUTO_PIN: string;
 		SSL_CERT_DIR: string;
 		LANG: string;
 		npm_lifecycle_script: string;
@@ -144,6 +153,7 @@ declare module '$env/dynamic/private' {
 		npm_package_version: string;
 		HOST: string;
 		npm_lifecycle_event: string;
+		CLAUDECODE: string;
 		npm_config_globalconfig: string;
 		npm_config_init_module: string;
 		PWD: string;

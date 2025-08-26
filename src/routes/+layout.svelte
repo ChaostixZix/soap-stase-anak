@@ -3,7 +3,7 @@
 	import Navbar from '$lib/components/Navbar.svelte';
 
 	// Authentication temporarily disabled for development
-	const DISABLE_AUTH = true;
+	// const DISABLE_AUTH = true;
 </script>
 
 <!-- Auth temporarily disabled for development -->
